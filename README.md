@@ -1,1 +1,1 @@
-# marketing-analytics-cs
+# Marketing Analytics Case Study - Serious SQL 
