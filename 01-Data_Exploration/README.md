@@ -168,11 +168,64 @@ So, in total there are 1000 unique films in our ```film``` table.
 
 ## 1.4 film_category table
 
-The film category table contains the ```category_id``` for different films. 
+The film category table maps each film to a ```category_id``` it belongs too. 
 
 ```sql
 SELECT * 
 FROM dvd_rentals.film_category
 LIMIT 10;
 ```
+
+| film_id | category_id | last_update              |
+|---------|-------------|--------------------------|
+| 1       | 6           | 2006-02-15T05:07:09.000Z |
+| 2       | 11          | 2006-02-15T05:07:09.000Z |
+| 3       | 6           | 2006-02-15T05:07:09.000Z |
+| 4       | 11          | 2006-02-15T05:07:09.000Z |
+| 5       | 8           | 2006-02-15T05:07:09.000Z |
+| 6       | 9           | 2006-02-15T05:07:09.000Z |
+| 7       | 5           | 2006-02-15T05:07:09.000Z |
+| 8       | 11          | 2006-02-15T05:07:09.000Z |
+| 9       | 11          | 2006-02-15T05:07:09.000Z |
+| 10      | 15          | 2006-02-15T05:07:09.000Z |
+
+## 1.5 category table
+
+This table maps each category_id to its ```name```. 
+
+```sql
+SELECT * 
+FROM dvd_rentals.category
+LIMIT 10;
+```
+
+*Output:*
+
+| category_id | name        | last_update              |
+|-------------|-------------|--------------------------|
+| 1           | Action      | 2006-02-15T04:46:27.000Z |
+| 2           | Animation   | 2006-02-15T04:46:27.000Z |
+| 3           | Children    | 2006-02-15T04:46:27.000Z |
+| 4           | Classics    | 2006-02-15T04:46:27.000Z |
+| 5           | Comedy      | 2006-02-15T04:46:27.000Z |
+| 6           | Documentary | 2006-02-15T04:46:27.000Z |
+| 7           | Drama       | 2006-02-15T04:46:27.000Z |
+| 8           | Family      | 2006-02-15T04:46:27.000Z |
+| 9           | Foreign     | 2006-02-15T04:46:27.000Z |
+| 10          | Games       | 2006-02-15T04:46:27.000Z |
+
+Let's see how many categories we have in total.
+
+```sql
+SELECT 
+  COUNT(DISTINCT category_id)
+FROM dvd_rentals.category;
+```
+
+*Output:*
+
+| count |
+|-------|
+|  16   |
+
 
