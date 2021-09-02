@@ -148,11 +148,7 @@ LIMIT 10;
 | 3       | ADAPTATION HOLES | A Astounding Reflection of a Lumberjack And a Car who must Sink a Lumberjack in A Baloon Factory                      | 2006         | 1           | 7               | 2.99        | 50     | 18.99            | NC-17  | 2006-02-15T05:03:42.000Z |
 | 4       | AFFAIR PREJUDICE | A Fanciful Documentary of a Frisbee And a Lumberjack who must Chase a Monkey in A Shark Tank                          | 2006         | 1           | 5               | 2.99        | 117    | 26.99            | G      | 2006-02-15T05:03:42.000Z |
 | 5       | AFRICAN EGG      | A Fast-Paced Documentary of a Pastry Chef And a Dentist who must Pursue a Forensic Psychologist in The Gulf of Mexico | 2006         | 1           | 6               | 2.99        | 130    | 22.99            | G      | 2006-02-15T05:03:42.000Z |
-| 6       | AGENT TRUMAN     | A Intrepid Panorama of a Robot And a Boy who must Escape a Sumo Wrestler in Ancient China                             | 2006         | 1           | 3               | 2.99        | 169    | 17.99            | PG     | 2006-02-15T05:03:42.000Z |
-| 7       | AIRPLANE SIERRA  | A Touching Saga of a Hunter And a Butler who must Discover a Butler in A Jet Boat                                     | 2006         | 1           | 6               | 4.99        | 62     | 28.99            | PG-13  | 2006-02-15T05:03:42.000Z |
-| 8       | AIRPORT POLLOCK  | A Epic Tale of a Moose And a Girl who must Confront a Monkey in Ancient India                                         | 2006         | 1           | 6               | 4.99        | 54     | 15.99            | R      | 2006-02-15T05:03:42.000Z |
-| 9       | ALABAMA DEVIL    | A Thoughtful Panorama of a Database Administrator And a Mad Scientist who must Outgun a Mad Scientist in A Jet Boat   | 2006         | 1           | 3               | 2.99        | 114    | 21.99            | PG-13  | 2006-02-15T05:03:42.000Z |
-| 10      | ALADDIN CALENDAR | A Action-Packed Tale of a Man And a Lumberjack who must Reach a Feminist in Ancient China                             | 2006         | 1           | 6               | 4.99        | 63     | 24.99            | NC-17  | 2006-02-15T05:03:42.000Z |
+
 
 Let's also take a look at the total number of unique film id we got in the table.
 
