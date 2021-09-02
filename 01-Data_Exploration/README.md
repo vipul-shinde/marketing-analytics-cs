@@ -228,4 +228,57 @@ FROM dvd_rentals.category;
 |-------|
 |  16   |
 
+## 1.6 film_actor table
 
+This table links a particular ```film_id``` to multiple ```actors``` as there can be multiple actors working in a film as well as an actor working in multiple films and it shows a many-to-many relationship.
+
+```sql
+SELECT *
+FROM dvd_rentals.film_actor
+WHERE actor_id = 45
+LIMIT 5;
+```
+
+*Output:*
+
+| actor_id | film_id | last_update              |
+|----------|---------|--------------------------|
+| 45       | 18      | 2006-02-15T05:05:03.000Z |
+| 45       | 65      | 2006-02-15T05:05:03.000Z |
+| 45       | 66      | 2006-02-15T05:05:03.000Z |
+| 45       | 115     | 2006-02-15T05:05:03.000Z |
+| 45       | 117     | 2006-02-15T05:05:03.000Z |
+
+## 1.7 actor table
+
+This is the last table containing the actor details such as name. Let's take a look at the table along with the total number of actors we got.
+
+```sql
+SELECT *
+FROM dvd_rentals.actor
+LIMIT 5;
+```
+
+*Output:*
+
+| actor_id | first_name | last_name    | last_update              |
+|----------|------------|--------------|--------------------------|
+| 1        | PENELOPE   | GUINESS      | 2006-02-15T04:34:33.000Z |
+| 2        | NICK       | WAHLBERG     | 2006-02-15T04:34:33.000Z |
+| 3        | ED         | CHASE        | 2006-02-15T04:34:33.000Z |
+| 4        | JENNIFER   | DAVIS        | 2006-02-15T04:34:33.000Z |
+| 5        | JOHNNY     | LOLLOBRIGIDA | 2006-02-15T04:34:33.000Z |
+
+```sql
+SELECT
+  COUNT(DISTINCT actor_id)
+FROM dvd_rentals.actor;
+```
+
+*Output:*
+
+| count |
+|-------|
+|  200  |
+
+Alright, now that we have explored the data a little bit let's move ahead with the analysis.
