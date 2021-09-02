@@ -1,0 +1,62 @@
+# 1. Data Exploration
+
+## 1.1 rental table
+
+The first table in our database schema is the rental table. Let's take a look at all the columns in the table. We'll limit the output to 10 rows.
+
+```sql
+SELECT * 
+FROM dvd_rentals.rental
+LIMIT 10;
+```
+
+*Output:*
+
+| rental_id | rental_date              | inventory_id | customer_id | return_date              | staff_id | last_update              |
+|-----------|--------------------------|--------------|-------------|--------------------------|----------|--------------------------|
+| 1         | 2005-05-24T22:53:30.000Z | 367          | 130         | 2005-05-26T22:04:30.000Z | 1        | 2006-02-15T21:30:53.000Z |
+| 2         | 2005-05-24T22:54:33.000Z | 1525         | 459         | 2005-05-28T19:40:33.000Z | 1        | 2006-02-15T21:30:53.000Z |
+| 3         | 2005-05-24T23:03:39.000Z | 1711         | 408         | 2005-06-01T22:12:39.000Z | 1        | 2006-02-15T21:30:53.000Z |
+| 4         | 2005-05-24T23:04:41.000Z | 2452         | 333         | 2005-06-03T01:43:41.000Z | 2        | 2006-02-15T21:30:53.000Z |
+| 5         | 2005-05-24T23:05:21.000Z | 2079         | 222         | 2005-06-02T04:33:21.000Z | 1        | 2006-02-15T21:30:53.000Z |
+| 6         | 2005-05-24T23:08:07.000Z | 2792         | 549         | 2005-05-27T01:32:07.000Z | 1        | 2006-02-15T21:30:53.000Z |
+| 7         | 2005-05-24T23:11:53.000Z | 3995         | 269         | 2005-05-29T20:34:53.000Z | 2        | 2006-02-15T21:30:53.000Z |
+| 8         | 2005-05-24T23:31:46.000Z | 2346         | 239         | 2005-05-27T23:33:46.000Z | 2        | 2006-02-15T21:30:53.000Z |
+| 9         | 2005-05-25T00:00:40.000Z | 2580         | 126         | 2005-05-28T00:22:40.000Z | 1        | 2006-02-15T21:30:53.000Z |
+| 10        | 2005-05-25T00:02:21.000Z | 1824         | 399         | 2005-05-31T22:44:21.000Z | 2        | 2006-02-15T21:30:53.000Z |
+
+So, the rental table contains all the details of the films that were rented along with other details such as ```inventory_id```, ```customer_id``` along with ```rental & return date```. So, one customer can rent multiple films from different inventories for an amount of time. Let's explore this table more.
+
+```sql
+SELECT 
+  COUNT(*) 
+FROM dvd_rentals.rental;
+```
+
+*Output:*
+
+| count |
+|-------|
+| 16044 |
+
+Let's see all the records for one customer.
+
+```sql
+SELECT *
+FROM dvd_rentals.rental
+WHERE customer_id = 5
+LIMIT 5;
+```
+
+*Output:*
+
+| rental_id | rental_date              | inventory_id | customer_id | return_date              | staff_id | last_update              |
+|-----------|--------------------------|--------------|-------------|--------------------------|----------|--------------------------|
+| 731       | 2005-05-29T07:25:16.000Z | 4124         | 5           | 2005-05-30T05:21:16.000Z | 1        | 2006-02-15T21:30:53.000Z |
+| 1085      | 2005-05-31T11:15:43.000Z | 301          | 5           | 2005-06-07T12:02:43.000Z | 1        | 2006-02-15T21:30:53.000Z |
+| 1142      | 2005-05-31T19:46:38.000Z | 3998         | 5           | 2005-06-05T14:03:38.000Z | 1        | 2006-02-15T21:30:53.000Z |
+| 1502      | 2005-06-15T22:03:14.000Z | 3277         | 5           | 2005-06-23T18:42:14.000Z | 2        | 2006-02-15T21:30:53.000Z |
+| 1631      | 2005-06-16T08:01:02.000Z | 2466         | 5           | 2005-06-19T09:04:02.000Z | 1        | 2006-02-15T21:30:53.000Z |
+
+
+
