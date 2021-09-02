@@ -59,4 +59,62 @@ LIMIT 5;
 | 1631      | 2005-06-16T08:01:02.000Z | 2466         | 5           | 2005-06-19T09:04:02.000Z | 1        | 2006-02-15T21:30:53.000Z |
 
 
+## 1.2 inventory table
+
+The inventory table consists of all the records of avalaible film copies and the store which they belong to.
+
+```sql
+SELECT *
+FROM dvd_rentals.inventory
+LIMIT 10;
+```
+
+*Output:*
+
+| inventory_id | film_id | store_id | last_update              |
+|--------------|---------|----------|--------------------------|
+| 1            | 1       | 1        | 2006-02-15T05:09:17.000Z |
+| 2            | 1       | 1        | 2006-02-15T05:09:17.000Z |
+| 3            | 1       | 1        | 2006-02-15T05:09:17.000Z |
+| 4            | 1       | 1        | 2006-02-15T05:09:17.000Z |
+| 5            | 1       | 2        | 2006-02-15T05:09:17.000Z |
+| 6            | 1       | 2        | 2006-02-15T05:09:17.000Z |
+| 7            | 1       | 2        | 2006-02-15T05:09:17.000Z |
+| 8            | 1       | 2        | 2006-02-15T05:09:17.000Z |
+| 9            | 2       | 2        | 2006-02-15T05:09:17.000Z |
+| 10           | 2       | 2        | 2006-02-15T05:09:17.000Z |
+
+One film can have multiple copies across store. Let's take a look at total number of inventories.
+
+```sql
+SELECT 
+  COUNT(*)
+FROM dvd_rentals.inventory;
+```
+
+*Output:*
+
+| count |
+|-------|
+| 4581  |
+
+Also, let's take a look at inventory records for one particular ```film_id```.
+
+```sql
+SELECT *
+FROM dvd_rentals.inventory
+WHERE film_id = 10;
+```
+
+*Output:*
+
+| inventory_id | film_id | store_id | last_update              |
+|--------------|---------|----------|--------------------------|
+| 46           | 10      | 1        | 2006-02-15T05:09:17.000Z |
+| 47           | 10      | 1        | 2006-02-15T05:09:17.000Z |
+| 48           | 10      | 1        | 2006-02-15T05:09:17.000Z |
+| 49           | 10      | 1        | 2006-02-15T05:09:17.000Z |
+| 50           | 10      | 2        | 2006-02-15T05:09:17.000Z |
+| 51           | 10      | 2        | 2006-02-15T05:09:17.000Z |
+| 52           | 10      | 2        | 2006-02-15T05:09:17.000Z |
 
