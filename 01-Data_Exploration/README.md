@@ -164,3 +164,15 @@ FROM dvd_rentals.film;
 |-------|
 | 1000  |
 
+So, in total there are 1000 unique films in our ```film``` table.
+
+## 1.4 film_category table
+
+The film category table contains the ```category_id``` for different films. 
+
+```sql
+SELECT * 
+FROM dvd_rentals.film_category
+LIMIT 10;
+```
+
