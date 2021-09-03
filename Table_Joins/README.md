@@ -68,3 +68,32 @@ SELECT * FROM jobs;
 | 6   | Plumber    | Ultra      |
 | 7   | Hero       | Plus Ultra |
 
+## 2. Basic Table Joins
+
+### 2.1 Inner Join or Join
+
+An inner join is used to get the intersection between two tables and only get the matching values. Let's take a look
+
+```sql
+SELECT 
+  names.iid,
+  names.first_name,
+  names.title,
+  jobs.occupation,
+  jobs.salary
+FROM names
+INNER JOIN jobs
+  ON names.iid = jobs.iid;
+```
+
+*Output:*
+
+| iid | first_name | title                | occupation | salary |
+|-----|------------|----------------------|------------|--------|
+| 1   | Kate       | Datacated Visualizer | Cleaner    | High   |
+| 2   | Eric       | Captain SQL          | Janitor    | Medium |
+| 3   | Danny      | Data Wizard Of Oz    | Monkey     | Low    |
+| 6   | Ken        | The YouTuber         | Plumber    | Ultra  |
+
+Here, we can see the query only returned the results having iid present in both tables.
+
