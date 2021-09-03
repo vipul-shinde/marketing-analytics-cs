@@ -247,5 +247,119 @@ WHERE first_name = 'Eric';
 | EricLikesTurquoise Gorillas!   |
 | EricLikesInvisible Unicorns!   |
 
+## 3 Advanced Joins
 
+Let's create another sample dataset containing duplicate job values called ```new_jobs```. 
 
+```sql
+DROP TABLE IF EXISTS new_jobs; 
+CREATE TEMP TABLE new_jobs AS
+WITH input_table (iid, occupation, salary) AS (
+ VALUES
+ (1, 'Cleaner', 'High'),
+ (1, 'Cleaner', 'Very High'),
+ (2, 'Janitor', 'Medium'),
+ (3, 'Monkey', 'Low'),
+ (3, 'Monkey', 'Very Low'),
+ (6, 'Plumber', 'Ultra'),
+ (7, 'Hero', 'Plus Ultra')
+)
+SELECT * FROM input_table;
+```
+
+*Output:*
+
+None
+
+```sql
+SELECT * FROM new_jobs;
+```
+
+*Output:*
+
+| iid | occupation | salary     |
+|-----|------------|------------|
+| 1   | Cleaner    | High       |
+| 1   | Cleaner    | Very High  |
+| 2   | Janitor    | Medium     |
+| 3   | Monkey     | Low        |
+| 3   | Monkey     | Very Low   |
+| 6   | Plumber    | Ultra      |
+| 7   | Hero       | Plus Ultra |
+
+### 3.1 Left Semi Join
+
+The left semi join is similar to the inner join except that it returns values only from the left or base tables. In PostgreSQL, the ```LEFT SEMI JOIN``` can be expressed by ```WHERE EXISTS```, where as in other flavors of SQL, you can use it directly.
+
+```sql
+SELECT
+  names.iid,
+  names.first_name
+FROM names
+WHERE EXISTS (
+  SELECT iid
+  FROM new_jobs
+  WHERE names.iid = new_jobs.iid
+);
+```
+
+*Output:*
+
+| iid | first_name |
+|-----|------------|
+| 1   | Kate       |
+| 2   | Eric       |
+| 3   | Danny      |
+| 6   | Ken        |
+
+Also, it doesn't matter what you choose to select inside the subquery for the WHERE EXISTS as it doesn't return any output.
+
+Let's replace ```iid``` with ```1``` in the subquery and see the output ourselves.
+
+```sql
+SELECT
+  names.iid,
+  names.first_name
+FROM names
+WHERE EXISTS (
+  SELECT 1
+  FROM new_jobs
+  WHERE names.iid = new_jobs.iid
+);
+```
+
+*Output:*
+
+| iid | first_name |
+|-----|------------|
+| 1   | Kate       |
+| 2   | Eric       |
+| 3   | Danny      |
+| 6   | Ken        |
+
+And, the ```LEFT SEMI JOIN``` join syntax for other flavors of SQL is as follows.
+
+```sql
+SELECT
+  names.iid,
+  names.first_name
+FROM names
+LEFT SEMI JOIN new_jobs
+ON names.iid = new_jobs.iid;
+```
+
+There's also an alternative ```LEFT SEMI JOIN``` snytax which is a regular ```LEFT JOIN``` with an addition of DISTINCT and  a WHERE clause to filter out all the null values.
+
+```sql
+SELECT DISTINCT
+  names.iid,
+  names.first_name
+FROM names
+LEFT JOIN new_jobs
+  ON names.iid = new_jobs.iid
+WHERE new_jobs.iid IS NOT NULL;
+```
+
+Here, we get the same output as above.
+
+### 3.2 Anti Join
