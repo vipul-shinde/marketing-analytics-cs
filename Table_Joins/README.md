@@ -247,7 +247,7 @@ WHERE first_name = 'Eric';
 | EricLikesTurquoise Gorillas!   |
 | EricLikesInvisible Unicorns!   |
 
-## 3 Advanced Joins
+## 3. Advanced Joins
 
 Let's create another sample dataset containing duplicate job values called ```new_jobs```. 
 
@@ -363,3 +363,78 @@ WHERE new_jobs.iid IS NOT NULL;
 Here, we get the same output as above.
 
 ### 3.2 Anti Join
+
+An anti join is the exact opposite to that of a left semi join where it returns all the values from the left or base table that are not present on the right table when you use the anti join. As compared to the ```LEFT SEMI JOIN```, a ```WHERE NOT EXISTS``` clause is used in PostgreSQL and some flavors of SQL directly support ```ANTI JOIN```.
+
+```sql
+SELECT 
+  names.iid,
+  names.first_name
+FROM names
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM new_jobs
+  WHERE names.iid = new_jobs.iid
+);
+```
+
+*Output:*
+
+| iid | first_name |
+|-----|------------|
+| 4   | Ben        |
+| 5   | Dave       |
+
+An alternative to the ```ANTI JOIN``` can be using a left join and where is null clause. Let's take a look
+
+```sql
+SELECT 
+  names.iid,
+  names.first_name
+FROM names
+LEFT JOIN new_jobs AS jobs
+  ON names.iid = jobs.iid
+WHERE jobs.iid IS NULL;
+```
+
+And, we get the same output as above.
+
+## 4. Joining on null values
+
+Let's create a sample dataset containing null values and see how the joins work on it.
+
+<details>
+<summary>Create Temp Tables</summary>
+<br>
+
+```sql
+DROP TABLE IF EXISTS null_names;
+CREATE TEMP TABLE null_names AS
+WITH input_data (iid, first_name, title) AS (
+ VALUES
+ (1,    'Kate',   'Datacated Visualizer'),
+ (2,    'Eric',   'Captain SQL'),
+ (3,    'Danny',  'Data Wizard Of Oz'),
+ (4,    'Ben',    'Mad Scientist'),
+ (5,    'Dave',   'Analytics Heretic'),
+ (6,    'Ken',    'The YouTuber'),
+ (null, 'Giorno', 'OG Data Gangster')
+)
+SELECT * FROM input_data;
+
+DROP TABLE IF EXISTS null_jobs;
+CREATE TEMP TABLE null_jobs AS
+WITH input_table (iid, occupation, salary) AS (
+ VALUES
+ (1,    'Cleaner',    'High'),
+ (1,    'Cleaner',    'Very High'),
+ (2,    'Janitor',    'Medium'),
+ (3,    'Monkey',     'Low'),
+ (3,    'Monkey',     'Very Low'),
+ (6,    'Plumber',    'Ultra'),
+ (7,    'Hero',       'Plus Ultra'),
+ (null, 'Mastermind', 'Bank')
+)
+SELECT * FROM input_table;
+```
+</details>
