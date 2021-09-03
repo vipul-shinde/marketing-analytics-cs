@@ -399,7 +399,7 @@ WHERE jobs.iid IS NULL;
 
 And, we get the same output as above.
 
-## 4. Joining on null values
+## 4. IN and NOT IN
 
 Let's create a sample dataset containing null values and see how the joins work on it.
 
@@ -438,3 +438,48 @@ WITH input_table (iid, occupation, salary) AS (
 SELECT * FROM input_table;
 ```
 </details>
+
+### 4.1 IN instead of WHERE EXISTS
+
+```sql
+SELECT
+  null_names.*
+FROM null_names
+WHERE null_names.iid IN (
+  SELECT iid
+  FROM null_jobs
+);
+```
+
+*Output:*
+
+| iid | first_name | title                |
+|-----|------------|----------------------|
+| 1   | Kate       | Datacated Visualizer |
+| 2   | Eric       | Captain SQL          |
+| 3   | Danny      | Data Wizard Of Oz    |
+| 6   | Ken        | The YouTuber         |
+
+So, no problem while using ```IN``` here when we got null values. Let's see if it's the same case with NOT IN.
+
+### 4.2 NOT IN instead of WHERE NOT EXISTS
+
+```sql
+SELECT
+  null_names.*
+FROM null_names
+WHERE null_names.iid NOT IN (
+  SELECT iid
+  FROM null_jobs
+);
+```
+
+*Output:*
+
+| iid | first_name | title                |
+|-----|------------|----------------------|
+
+So, it gives us no output record. This is because of the null value. ANSI SQL doesn't support comparing values greater than, smaller than, not equal to ```NULL```. It only supports ```IS NULL``` & ```IS NOT NULL```.
+
+
+
