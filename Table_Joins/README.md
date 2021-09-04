@@ -481,5 +481,107 @@ WHERE null_names.iid NOT IN (
 
 So, it gives us no output record. This is because of the null value. ANSI SQL doesn't support comparing values greater than, smaller than, not equal to ```NULL```. It only supports ```IS NULL``` & ```IS NOT NULL```.
 
+## 5. Set Operations
 
+### 5.1 Union
+
+Union will simply give us the union between two sets or tables.
+
+```sql
+SELECT * FROM names WHERE first_name = 'Danny'
+UNION
+SELECT * FROM names WHERE first_name = 'Kate';
+```
+
+*Output:*
+
+| iid | first_name | title                |
+|-----|------------|----------------------|
+| 1   | Kate       | Datacated Visualizer |
+| 3   | Danny      | Data Wizard Of Oz    |
+
+### 5.2 Union All
+
+The difference between Union and Union All is that the former runs a DISTINCT through it's output. For eg,
+
+```sql
+SELECT * FROM names WHERE first_name = 'Danny'
+UNION
+SELECT * FROM names WHERE first_name = 'Danny';
+```
+
+*Output:*
+
+| iid | first_name | title             |
+|-----|------------|-------------------|
+| 3   | Danny      | Data Wizard Of Oz |
+
+Whereas, if we do a ```UNION ALL```, we get two same values.
+
+```sql
+SELECT * FROM names WHERE first_name = 'Danny'
+UNION ALL
+SELECT * FROM names WHERE first_name = 'Danny';
+```
+
+| iid | first_name | title             |
+|-----|------------|-------------------|
+| 3   | Danny      | Data Wizard Of Oz |
+| 3   | Danny      | Data Wizard Of Oz |
+
+
+### 5.3 Intersect
+
+Intersect returns all the records that are present in both the tables.
+
+```sql
+SELECT * FROM names 
+INTERSECT
+SELECT * FROM names WHERE LEFT(first_name,1) = 'K';
+```
+
+*Output:*
+
+| iid | first_name | title                |
+|-----|------------|----------------------|
+| 1   | Kate       | Datacated Visualizer |
+| 6   | Ken        | The YouTuber         |
+
+### 5.4 Except
+
+Except is the equivalent of ```ANTI JOIN```.
+
+```sql
+SELECT * FROM names 
+EXCEPT
+SELECT * FROM names WHERE LEFT(first_name,1) = 'K';
+```
+
+*Output:*
+
+| iid | first_name | title             |
+|-----|------------|-------------------|
+| 3   | Danny      | Data Wizard Of Oz |
+| 4   | Ben        | Mad Scientist     |
+| 5   | Dave       | Analytics Heretic |
+| 2   | Eric       | Captain SQL       |
+
+### 5.5 Multiple Combinations
+
+You can also combine multiple query to filter and get the results you want.
+
+```sql
+SELECT * FROM names WHERE first_name = 'Danny'
+UNION
+SELECT * FROM names where LEFT(first_name, 1) = 'K'
+EXCEPT
+SELECT * FROM names where first_name = 'Kate';
+```
+
+*Output:*
+
+| iid | first_name | title             |
+|-----|------------|-------------------|
+| 3   | Danny      | Data Wizard Of Oz |
+| 6   | Ken        | The YouTuber      |
 
