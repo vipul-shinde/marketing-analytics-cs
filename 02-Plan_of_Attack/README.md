@@ -1,4 +1,6 @@
-# 1. Define the final state
+# 2. Plan of Attack
+
+## 2.1 Define the final state
 
 Looking back at the email template that we have to work on using SQL, the key columns that we will need to generate include the following data points at a customer_id level:
 
@@ -20,7 +22,7 @@ And the final output should look something like this.
 
 And so on.....
 
-# 2. Reverse Engineering
+## 2.2 Reverse Engineering
 
 As we can see from the above output table, the main thing we need is a ```rental_count``` at the customer_id level. The columns like ```average_comparison```, ```percentile``` and  ```category_percentage``` are all dependent on the rental_count.
 
@@ -35,7 +37,7 @@ Also, we need the top two categories for each customer along with the category n
 
 But, in order to find the average_comparison and percentile, we need to find these values for all the customer watched categories.
 
-# 3. Mapping the joining journey
+## 2.3 Mapping the joining journey
 
 Let's select a few columns that are very important for our project. As we have to find the ```rental_value``` at a customer_id level, we'll need the following two columns for that.
 
@@ -53,6 +55,6 @@ Right now we will skip the 6th & 7th table containing the actor details which we
 | Part 3            | ```film```          | ```film_category``` | ```film_id```      |
 | Part 4            | ```film_category``` | ```category```      | ```category_id```  |
 
-
+## 2.4  
 
 
