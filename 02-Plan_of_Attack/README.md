@@ -37,4 +37,22 @@ But, in order to find the average_comparison and percentile, we need to find the
 
 # 3. Mapping the joining journey
 
+Let's select a few columns that are very important for our project. As we have to find the ```rental_value``` at a customer_id level, we'll need the following two columns for that.
+
+1. ```customer_id```
+2. ```category_name```
+
+And the first table we should begin with the ```rental``` table as it contains most of the information we need w.r.t rentals and customers along with inventory_id which we then need to map to the film and then based on the film_id extract it's category from the category table.
+
+Right now we will skip the 6th & 7th table containing the actor details which we'll come back to later on. So, our final version of the joins mapping journey will look something like this.
+
+| Join Journey Part | Start               | 	End                | 	Foreign Key       |
+|-------------------|---------------------|---------------------|--------------------|
+| Part 1            | ```rental```        | ```inventory```     | ```inventory_id``` |
+| Part 2            | ```inventory```     | ```film```          | ```film_id```      |
+| Part 3            | ```film```          | ```film_category``` | ```film_id```      |
+| Part 4            | ```film_category``` | ```category```      | ```category_id```  |
+
+
+
 
