@@ -111,6 +111,7 @@ SELECT
   COUNT(DISTINCT inventory_id)
 FROM dvd_rentals.inventory;
 ```
+
 *Output:*
 
 | count |
@@ -119,7 +120,46 @@ FROM dvd_rentals.inventory;
 
 As we can see, our first hyptheses seem to fail as we got 1 more unique ```inventory_id``` in the inventory table when compared to the rental table.
 
+#### 2.4.3.2 Hypotheses 2
 
+> There will be a multiple records per unique ```inventory_id``` in the ```dvd_rentals.rental``` table
+
+```sql
+-- first we generate group by counts on the target_column_values
+WITH counts_base AS (
+SELECT 
+  inventory_id AS target_column_values,
+  COUNT(*) AS row_count
+FROM dvd_rentals.rental
+GROUP BY target_column_values
+)
+
+-- we then group by again on the row_count to summarize our results
+SELECT
+  row_count,
+  COUNT(target_column_values) AS count_of_target_values
+FROM counts_base
+GROUP BY row_count
+ORDER BY row_count;
+```
+
+*Output:*
+
+| row_count | count_of_target_values |
+|-----------|------------------------|
+| 1         | 4                      |
+| 2         | 1126                   |
+| 3         | 1151                   |
+| 4         | 1160                   |
+| 5         | 1139                   |
+
+Hence, we can confirm that there are multiple rows per ```inventory_id``` in our rental table.
+
+Let's move on to check our last hypotheses.
+
+### 2.3.4.3 Hypotheses 3
+
+> There will be multiple ```inventory_id``` records per unique ```film_id``` value in the ```dvd_rentals.inventory``` table
 
 
 
