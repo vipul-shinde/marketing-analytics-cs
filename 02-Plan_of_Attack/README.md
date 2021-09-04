@@ -161,6 +161,41 @@ Let's move on to check our last hypotheses.
 
 > There will be multiple ```inventory_id``` records per unique ```film_id``` value in the ```dvd_rentals.inventory``` table
 
+We can use the same approach as above.
+
+```sql
+-- first we generate group by counts on the target_column_values
+WITH counts_base AS (
+SELECT 
+  film_id AS target_column_values,
+  COUNT(*) AS row_count
+FROM dvd_rentals.inventory
+GROUP BY target_column_values
+)
+
+-- we then group by again on the row_count to summarize our results
+SELECT
+  row_count,
+  COUNT(target_column_values) AS count_of_target_values
+FROM counts_base
+GROUP BY row_count
+ORDER BY row_count;
+```
+
+*Output:*
+
+| row_count | count_of_target_values |
+|-----------|------------------------|
+| 2         | 133                    |
+| 3         | 131                    |
+| 4         | 183                    |
+| 5         | 136                    |
+| 6         | 187                    |
+| 7         | 116                    |
+| 8         | 72                     |
+
+And we can confirm that our hypotheses 3 is valid and indeed there are multiple ```inventory_id per``` unique ```film_id```.
+
 
 
 
