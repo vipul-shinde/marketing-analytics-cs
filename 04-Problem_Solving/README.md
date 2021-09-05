@@ -226,3 +226,51 @@ ORDER BY
 
 Now, we can see that the ```Sci-Fi``` category has taken up the second most watched category place for customer 3. Earlier, it was ```Animation```.
 
+## 4.3 Calculating average of all categories
+
+We can calculate the average across categories for the first three customers for now as follows.
+
+```sql
+WITH aggregated_rental_count AS (
+SELECT 
+  customer_id,
+  category_name,
+  COUNT(*) AS rental_count
+FROM final_table_join_data
+WHERE customer_id IN (1, 2, 3)
+GROUP BY
+  customer_id,
+  category_name
+)
+
+SELECT 
+  category_name,
+  ROUND(
+  AVG(rental_count), 
+  2) AS average_value
+FROM aggregated_rental_count
+GROUP BY category_name
+ORDER BY category_name;
+```
+
+*Output:*
+
+| category_name | average_value |
+|---------------|---------------|
+| Action        | 3.00          |
+| Animation     | 2.67          |
+| Children      | 1.00          |
+| Classics      | 3.67          |
+| Comedy        | 3.50          |
+| Documentary   | 1.00          |
+| Drama         | 2.50          |
+| Family        | 1.00          |
+| Foreign       | 1.00          |
+| Games         | 1.67          |
+| Horror        | 2.00          |
+| Music         | 1.67          |
+| New           | 2.00          |
+| Sci-Fi        | 2.00          |
+| Sports        | 3.00          |
+| Travel        | 1.50          |
+
