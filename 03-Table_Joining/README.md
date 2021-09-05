@@ -321,5 +321,49 @@ LIMIT 5;
 | 4       | 11          | Horror        |
 | 5       | 8           | Family        |
 
-## 3. Final Join implementation
+## 3.3 Final Join implementation
+
+Now, lets create our full final dataset for part 1 upto part 4 using ```INNER JOIN``` using the same implementation as above.
+
+```sql
+DROP TABLE IF EXISTS final_table_join_data;
+CREATE TEMP TABLE final_table_join_data AS (
+SELECT 
+  rental.customer_id,
+  film.film_id,
+  film.title,
+  film_category.category_id,
+  category.name AS category_name
+FROM dvd_rentals.rental
+INNER JOIN dvd_rentals.inventory
+  ON rental.inventory_id = inventory.inventory_id
+INNER JOIN dvd_rentals.film
+  ON inventory.film_id = film.film_id
+INNER JOIN dvd_rentals.film_category
+  ON film.film_id = film_category.film_id
+INNER JOIN dvd_rentals.category
+  ON film_category.category_id = category.category_id
+);
+
+SELECT *
+FROM final_table_join_data
+LIMIT 10;
+```
+
+*Output:*
+
+| customer_id | film_id | title           | category_id | category_name |
+|-------------|---------|-----------------|-------------|---------------|
+| 130         | 80      | BLANKET BEVERLY | 8           | Family        |
+| 459         | 333     | FREAKY POCUS    | 12          | Music         |
+| 408         | 373     | GRADUATE LORD   | 3           | Children      |
+| 333         | 535     | LOVE SUICIDES   | 11          | Horror        |
+| 222         | 450     | IDOLS SNATCHERS | 3           | Children      |
+| 549         | 613     | MYSTIC TRUMAN   | 5           | Comedy        |
+| 269         | 870     | SWARM GOLD      | 11          | Horror        |
+| 239         | 510     | LAWLESS VISION  | 2           | Animation     |
+| 126         | 565     | MATRIX SNOWMAN  | 9           | Foreign       |
+| 399         | 396     | HANGING DEEP    | 7           | Drama         |
+
+This is now our final table output such that we can run our aggregations and solve the business problems.
 
