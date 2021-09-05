@@ -48,7 +48,7 @@ And the first table we should begin with the ```rental``` table as it contains m
 
 Right now we will skip the 6th & 7th table containing the actor details which we'll come back to later on. So, our final version of the joins mapping journey will look something like this.
 
-| Join Journey Part | Start               | 	End                | 	Foreign Key       |
+| Join Journey Part | Start               | 	End             | 	Foreign Key      |
 |-------------------|---------------------|---------------------|--------------------|
 | Part 1            | ```rental```        | ```inventory```     | ```inventory_id``` |
 | Part 2            | ```inventory```     | ```film```          | ```film_id```      |
@@ -349,61 +349,6 @@ WHERE EXISTS (
 | count |
 |-------|
 | 4580  |
-
-### 2.4.6 Implenting the Joins
-
-After performing the analysis that it won't matter which join we chose to use as it won't make any difference for our example. We can check this ourself by running the following SQL code.
-
-<details>
-<summary>Click to see SQL code</summary>
-<br>
-
-```sql
-DROP TABLE IF EXISTS left_rental_join;
-CREATE TEMP TABLE left_rental_join AS
-SELECT
-  rental.customer_id,
-  rental.inventory_id,
-  inventory.film_id
-FROM dvd_rentals.rental
-LEFT JOIN dvd_rentals.inventory
-  ON rental.inventory_id = inventory.inventory_id;
-
-DROP TABLE IF EXISTS inner_rental_join;
-CREATE TEMP TABLE inner_rental_join AS
-SELECT
-  rental.customer_id,
-  rental.inventory_id,
-  inventory.film_id
-FROM dvd_rentals.rental
-INNER JOIN dvd_rentals.inventory
-  ON rental.inventory_id = inventory.inventory_id;
-
-SELECT
-  'left join' AS join_type,
-  COUNT(*) AS record_count,
-  COUNT(DISTINCT inventory_id) AS unique_key_values
-FROM left_rental_join
-  
-UNION
-
-SELECT
-  'inner join' AS join_type,
-  COUNT(*) AS record_count,
-  COUNT(DISTINCT inventory_id) AS unique_key_values
-FROM inner_rental_join;
-```
-</details>
-
-*Output:*
-
-| join_type  | record_count | unique_key_values |
-|------------|--------------|-------------------|
-| inner join | 16044        | 4580              |
-| left join  | 16044        | 4580              |
-
-
-
 
 
 
