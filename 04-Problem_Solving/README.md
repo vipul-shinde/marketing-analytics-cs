@@ -176,7 +176,7 @@ SELECT
   film.film_id,
   film.title,
   film_category.category_id,
-  category.name AS category_name
+  category.name AS category_name,
   rental.rental_date
 FROM dvd_rentals.rental
 INNER JOIN dvd_rentals.inventory
@@ -274,3 +274,128 @@ ORDER BY category_name;
 | Sports        | 3.00          |
 | Travel        | 1.50          |
 
+## 4.4 Data aggregation on the whole dataset
+
+Now that we have seen the aggregation performed for just 3 customers, lets do it across the whole dataset. As said earlier, we do need the top 2 categories but in order to perform the average_rental_count, percentile and percentage_count, we need aggregation on the whole data so let's do it.
+
+We will split our aggregations and create temporary tables for each of them.
+
+### 4.4.1 Customer Rental count
+
+Let's first aggregate the ```rental_count``` for each customer's record for each category. Here, we'll also select the ```latest_rental_date``` for that category which will be useful for us in sorting as seen earlier.
+
+```sql
+DROP TABLE IF EXISTS category_rental_count;
+CREATE TEMP TABLE category_rental_count AS (
+SELECT 
+  customer_id,
+  category_name,
+  COUNT(*) AS rental_count,
+  MAX(rental_date) AS latest_rental_date
+FROM final_table_join_data
+GROUP BY
+  customer_id,
+  category_name
+);
+
+-- Checking the records for customer_id = 1
+SELECT *
+FROM category_rental_count
+WHERE customer_id = 1
+ORDER BY
+  rental_count DESC,
+  latest_rental_date DESC;
+```
+
+*Output:*
+
+| customer_id | category_name | rental_count | latest_rental_date       |
+|-------------|---------------|--------------|--------------------------|
+| 1           | Classics      | 6            | 2005-08-19T09:55:16.000Z |
+| 1           | Comedy        | 5            | 2005-08-22T19:41:37.000Z |
+| 1           | Drama         | 4            | 2005-08-18T03:57:29.000Z |
+| 1           | Animation     | 2            | 2005-08-22T20:03:46.000Z |
+| 1           | Sci-Fi        | 2            | 2005-08-21T23:33:57.000Z |
+| 1           | New           | 2            | 2005-08-19T13:56:54.000Z |
+| 1           | Action        | 2            | 2005-08-17T12:37:54.000Z |
+| 1           | Music         | 2            | 2005-07-09T16:38:01.000Z |
+| 1           | Sports        | 2            | 2005-07-08T07:33:56.000Z |
+| 1           | Family        | 1            | 2005-08-02T18:01:38.000Z |
+| 1           | Documentary   | 1            | 2005-08-01T08:51:04.000Z |
+| 1           | Foreign       | 1            | 2005-07-28T16:18:23.000Z |
+| 1           | Travel        | 1            | 2005-07-11T10:13:46.000Z |
+| 1           | Games         | 1            | 2005-07-08T03:17:05.000Z |
+
+### 4.4.2 Total customer rentals
+
+Now, in order to find the ```category_percentage``` i.e. the total proportion of films watched by the customer in that category , we need the total rental counts for each customer.
+
+```sql
+DROP TABLE IF EXISTS customer_total_rentals;
+CREATE TEMP TABLE customer_total_rentals AS (
+SELECT
+  customer_id,
+  SUM(rental_count) AS total_rentals
+FROM category_rental_count
+GROUP BY customer_id
+);
+
+-- Display records for the first 5 customers
+SELECT *
+FROM customer_total_rentals
+ORDER BY customer_id
+LIMIT 5;
+```
+
+*Output:*
+
+| customer_id | total_rentals |
+|-------------|---------------|
+| 1           | 32            |
+| 2           | 27            |
+| 3           | 26            |
+| 4           | 22            |
+| 5           | 38            |
+
+### 4.4.3 Average category rental counts
+
+Finally, we can calculate the ```AVG``` of all rentals across categories for all customers.
+
+```sql
+DROP TABLE IF EXISTS average_category_rental_counts;
+CREATE TEMP TABLE average_category_rental_counts AS (
+SELECT
+  category_name,
+  ROUND(
+  AVG(rental_count),
+  2) AS average_rental_value
+FROM category_rental_count
+GROUP BY category_name
+);
+
+-- Display records for the new table
+SELECT *
+FROM average_category_rental_counts
+ORDER BY average_rental_value DESC;
+```
+
+*Output:*
+
+| category_name | average_rental_value |
+|---------------|----------------------|
+| Animation     | 2.33                 |
+| Sports        | 2.27                 |
+| Family        | 2.19                 |
+| Action        | 2.18                 |
+| Sci-Fi        | 2.17                 |
+| Documentary   | 2.17                 |
+| Drama         | 2.12                 |
+| Foreign       | 2.10                 |
+| Games         | 2.04                 |
+| Classics      | 2.01                 |
+| New           | 2.01                 |
+| Children      | 1.96                 |
+| Comedy        | 1.90                 |
+| Travel        | 1.89                 |
+| Horror        | 1.88                 |
+| Music         | 1.86                 |
