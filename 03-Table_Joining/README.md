@@ -366,4 +366,3 @@ LIMIT 10;
 | 399         | 396     | HANGING DEEP    | 7           | Drama         |
 
 This is now our final table output such that we can run our aggregations and solve the business problems.
-
