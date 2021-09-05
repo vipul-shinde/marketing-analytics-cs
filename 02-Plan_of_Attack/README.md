@@ -350,7 +350,7 @@ WHERE EXISTS (
 |-------|
 | 4580  |
 
-
+Now, that we have analyzed and checked, let's move on to the Table Joining part.
 
 
 
