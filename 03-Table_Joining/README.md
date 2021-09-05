@@ -1,5 +1,7 @@
 # 3. Join Implementation
 
+Taking a look at our table joining journey.
+
 | Join Journey Part | Start               | 	End             | 	Foreign Key      |
 |-------------------|---------------------|---------------------|--------------------|
 | Part 1            | ```rental```        | ```inventory```     | ```inventory_id``` |
@@ -9,11 +11,7 @@
 
 ## 3.1 Joins Part 1
 
-After performing the analysis that it won't matter which join we chose to use as it won't make any difference for our example. We can check this ourself by running the following SQL code.
-
-<details>
-<summary>Click to see SQL code</summary>
-<br>
+After performing the analysis, its clear that we can chose either of the ```INNER JOIN``` OR ```LEFT JOIN``` as it won't make any difference for our example. We can check this ourself by running the following SQL code.
 
 ```sql
 DROP TABLE IF EXISTS left_rental_join;
@@ -50,7 +48,6 @@ SELECT
   COUNT(DISTINCT inventory_id) AS unique_key_values
 FROM inner_rental_join;
 ```
-</details>
 
 *Output:*
 
