@@ -67,7 +67,7 @@ There are two type of joins we can think of viz, Left Join and Inner Join. Let's
 
 There are a few questions we need to look up at before deciding which join to use.
 
-1. How many records exist per ```inventory_id``` value in rental or inventory tables?
+1. How many records exist per ```inventory_id``` value in ```rental``` or ```inventory``` tables?
 2. How many overlapping and missing unique foreign key values are there between the two tables?
 
 Now, here comes the 2 phase approach that we going to use in order to answer the above questions. First, generating some hypotheses about the data and then try to validate it to see if we are correct.
@@ -195,6 +195,216 @@ ORDER BY row_count;
 | 8         | 72                     |
 
 And we can confirm that our hypotheses 3 is valid and indeed there are multiple ```inventory_id per``` unique ```film_id```.
+
+### 2.3.5 Returning to our 2 key questions
+
+1. How many records exist per ```inventory_id``` value in ```rental``` or ```inventory``` tables?
+2. How many overlapping and missing unique foreign key values are there between the two tables?
+
+For the first question, let's check the number of unique number of inventory_id in both the tables.
+
+> How many records exist per ```inventory_id``` value in ```rental``` or ```inventory``` tables?
+
+**rental distribution analysis on ```inventory_id``` foreign key**
+
+```sql
+-- first we generate group by counts on the target_column_values
+WITH counts_base AS (
+SELECT 
+  inventory_id AS target_column_values,
+  COUNT(*) AS row_count
+FROM dvd_rentals.rental
+GROUP BY target_column_values
+)
+
+-- we then group by again on the row_count to summarize our results
+SELECT
+  row_count,
+  COUNT(target_column_values) AS count_of_target_values
+FROM counts_base
+GROUP BY row_count
+ORDER BY row_count;
+```
+
+*Output:*
+
+| row_count | count_of_target_values |
+|-----------|------------------------|
+| 1         | 4                      |
+| 2         | 1126                   |
+| 3         | 1151                   |
+| 4         | 1160                   |
+| 5         | 1139                   |
+
+Here, we can see that there are mutiple records present for a unique ```inventory_id``` in the ```rental``` table which shows a one-to-many relationship.
+
+Also, the output shows that there are 4 unique inventory_id with exactly one row record, while there are 1126 ```inventory_id``` with 2 row_counts, etc.
+
+**inventory distribution analysis on ```inventory_id``` foreign key**
+
+```sql
+-- first we generate group by counts on the target_column_values
+WITH counts_base AS (
+SELECT 
+  inventory_id AS target_column_values,
+  COUNT(*) AS row_count
+FROM dvd_rentals.inventory
+GROUP BY target_column_values
+)
+
+-- we then group by again on the row_count to summarize our results
+SELECT
+  row_count,
+  COUNT(target_column_values) AS count_of_target_values
+FROM counts_base
+GROUP BY row_count
+ORDER BY row_count;
+```
+
+*Output:*
+
+| row_count | count_of_target_values |
+|-----------|------------------------|
+| 1         | 4581                   |
+
+As compared to the ```rental``` table, the ```inventory``` table contains only 1 row per unique inventory_id showing a one-to-one relationship.
+
+Now, let's move on to the second question.
+
+> How many overlapping and missing unique foreign key values are there between the two tables?
+
+So, let's first find out the number of foreign keys that exist only in the left table or the ```rental``` table.
+
+```sql
+SELECT
+  COUNT(DISTINCT inventory_id) 
+FROM dvd_rentals.rental
+WHERE NOT EXISTS (
+  SELECT inventory_id
+  FROM dvd_rentals.inventory
+  WHERE rental.inventory_id = inventory.inventory_id
+);
+```
+
+*Output:*
+
+| count |
+|-------|
+| 0     |
+
+Now, we can confirm that all the foreign keys that are present in the left table i.e. ```rental``` table are present in the ```inventory``` table as well.
+
+Let's also check if it's the same case with the right table i.e. ```inventory``` table.
+
+```sql
+SELECT
+  COUNT(DISTINCT inventory_id) 
+FROM dvd_rentals.inventory
+WHERE NOT EXISTS (
+  SELECT inventory_id
+  FROM dvd_rentals.rental
+  WHERE rental.inventory_id = inventory.inventory_id
+);
+```
+
+*Output:*
+
+| count |
+|-------|
+| 1     |
+
+And, we have found one value that only exists in the ```inventory``` table. Let's investigate this further.
+
+```sql
+SELECT *
+FROM dvd_rentals.inventory
+WHERE NOT EXISTS (
+  SELECT inventory_id
+  FROM dvd_rentals.rental
+  WHERE rental.inventory_id = inventory.inventory_id
+);
+```
+
+*Output:*
+
+| inventory_id | film_id | store_id | last_update              |
+|--------------|---------|----------|--------------------------|
+| 5            | 1       | 2        | 2006-02-15T05:09:17.000Z |
+
+This is the only record that's odd as compared to the other records. It contains details about an inventory and the film it belongs to. It might be possible that this inventory was never rented out by a customer. The intersection of the foreign keys between the two tables can be found by the following query.
+
+```sql
+SELECT
+  COUNT(DISTINCT inventory_id) 
+FROM dvd_rentals.rental
+WHERE EXISTS (
+  SELECT inventory_id
+  FROM dvd_rentals.inventory
+  WHERE rental.inventory_id = inventory.inventory_id
+);
+```
+
+*Output:*
+
+| count |
+|-------|
+| 4580  |
+
+### 2.4.6 Implenting the Joins
+
+After performing the analysis that it won't matter which join we chose to use as it won't make any difference for our example. We can check this ourself by running the following SQL code.
+
+<details>
+<summary>Click to see SQL code</summary>
+<br>
+
+```sql
+DROP TABLE IF EXISTS left_rental_join;
+CREATE TEMP TABLE left_rental_join AS
+SELECT
+  rental.customer_id,
+  rental.inventory_id,
+  inventory.film_id
+FROM dvd_rentals.rental
+LEFT JOIN dvd_rentals.inventory
+  ON rental.inventory_id = inventory.inventory_id;
+
+DROP TABLE IF EXISTS inner_rental_join;
+CREATE TEMP TABLE inner_rental_join AS
+SELECT
+  rental.customer_id,
+  rental.inventory_id,
+  inventory.film_id
+FROM dvd_rentals.rental
+INNER JOIN dvd_rentals.inventory
+  ON rental.inventory_id = inventory.inventory_id;
+
+SELECT
+  'left join' AS join_type,
+  COUNT(*) AS record_count,
+  COUNT(DISTINCT inventory_id) AS unique_key_values
+FROM left_rental_join
+  
+UNION
+
+SELECT
+  'inner join' AS join_type,
+  COUNT(*) AS record_count,
+  COUNT(DISTINCT inventory_id) AS unique_key_values
+FROM inner_rental_join;
+```
+</details>
+
+*Output:*
+
+| join_type  | record_count | unique_key_values |
+|------------|--------------|-------------------|
+| inner join | 16044        | 4580              |
+| left join  | 16044        | 4580              |
+
+
+
+
 
 
 
