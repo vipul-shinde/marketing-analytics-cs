@@ -195,3 +195,131 @@ WHERE EXISTS (
 | total_count |
 |-------------|
 | 958         |
+
+So, now that we know we have all our foreign key values in the ```inventory``` table, its time to decide our join and in this particular example as we have seen before it won't make a difference to chose either INNER or LEFT Join. We can test this by implementing both the joins and comparing the number of unique key values.
+
+<details>
+<summary>Click to view SQL code</summary>
+<br>
+
+```sql
+DROP TABLE IF EXISTS left_join_part_2;
+CREATE TEMP TABLE left_join_part_2 AS (
+SELECT
+  inventory.inventory_id,
+  inventory.film_id,
+  film.title
+FROM dvd_rentals.inventory
+LEFT JOIN dvd_rentals.film
+  ON inventory.film_id = film.film_id
+);
+
+DROP TABLE IF EXISTS inner_join_part_2;
+CREATE TEMP TABLE inner_join_part_2 AS (
+SELECT 
+  inventory.inventory_id,
+  inventory.film_id,
+  film.title
+FROM dvd_rentals.inventory
+LEFT JOIN dvd_rentals.film
+  ON inventory.film_id = film.film_id
+);
+
+SELECT 
+  'inner join' AS join_type,
+  COUNT(*) AS row_counts,
+  COUNT(DISTINCT film_id) AS unique_film_values
+FROM inner_join_part_2
+
+UNION
+
+SELECT 
+  'left join' AS join_type,
+  COUNT(*) AS row_counts,
+  COUNT(DISTINCT film_id) AS unique_film_values
+FROM left_join_part_2;
+```
+
+</details>
+
+*Output:*
+
+| join_type  | row_counts | unique_film_values |
+|------------|------------|--------------------|
+| inner join | 4581       | 958                |
+| left join  | 4581       | 958                |
+
+### 3.2.5 Join implementation of part 1 & 2
+
+Now, that we have decided on our type of join that we are going to be using, let's implement a three table ```INNER JOIN```.
+
+```sql
+DROP TABLE IF EXISTS join_part1_and_part2;
+CREATE TEMP TABLE join_part1_and_part2 AS (
+SELECT
+  rental.customer_id,
+  inventory.film_id,
+  film.title
+FROM dvd_rentals.rental
+INNER JOIN dvd_rentals.inventory
+  ON rental.inventory_id = inventory.inventory_id
+INNER JOIN dvd_rentals.film
+  ON inventory.film_id = film.film_id
+);
+
+SELECT * 
+FROM join_part1_and_part2
+ORDER BY customer_id
+LIMIT 5;
+```
+
+*Output:*
+
+| customer_id | film_id | title                |
+|-------------|---------|----------------------|
+| 1           | 308     | FERRIS MOTHER        |
+| 1           | 243     | DOORS PRESIDENT      |
+| 1           | 924     | UNFORGIVEN ZOOLANDER |
+| 1           | 480     | JEEPERS WEDDING      |
+| 1           | 611     | MUSKETEERS WAIT      |
+
+### 3.2.6 Join implementation of part 3 & 4
+
+We can follow all the above steps and come up with a purpose, hypotheses validate it for the join part 3 & part 4. But, if we go through all of it we'll find that there is one-to-one relationship for ```film_id``` in both the film & film_category table for the part 3. 
+
+Also, for the part 4, there is one-to-many relationship between ```category_id``` in the left table i.e. film_category table and a one-to-one relationship for the category table.
+
+Hence, we will just go ahead with our ```INNER JOIN``` implementation for part 3 and part 4 tables as before.
+
+```sql
+DROP TABLE IF EXISTS join_part3_and_part4;
+CREATE TEMP TABLE join_part3_and_part4 AS (
+SELECT 
+  film.film_id,
+  film_category.category_id,
+  category.name AS category_name
+FROM dvd_rentals.film
+INNER JOIN dvd_rentals.film_category
+  ON film.film_id = film_category.film_id
+INNER JOIN dvd_rentals.category
+  ON film_category.category_id = category.category_id
+);
+
+SELECT *
+FROM join_part3_and_part4
+ORDER BY film_id
+LIMIT 5;
+```
+
+*Output:*
+
+| film_id | category_id | category_name |
+|---------|-------------|---------------|
+| 1       | 6           | Documentary   |
+| 2       | 11          | Horror        |
+| 3       | 6           | Documentary   |
+| 4       | 11          | Horror        |
+| 5       | 8           | Family        |
+
+## 3. Final Join implementation
+
