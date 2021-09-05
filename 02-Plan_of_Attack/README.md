@@ -48,7 +48,7 @@ And the first table we should begin with the ```rental``` table as it contains m
 
 Right now we will skip the 6th & 7th table containing the actor details which we'll come back to later on. So, our final version of the joins mapping journey will look something like this.
 
-| Join Journey Part | Start               | 	End             | 	Foreign Key      |
+| Join Journey Part | Start               |  End                |  Foreign Key       |
 |-------------------|---------------------|---------------------|--------------------|
 | Part 1            | ```rental```        | ```inventory```     | ```inventory_id``` |
 | Part 2            | ```inventory```     | ```film```          | ```film_id```      |
@@ -351,8 +351,3 @@ WHERE EXISTS (
 | 4580  |
 
 Now, that we have analyzed and checked, let's move on to the Table Joining part.
-
-
-
-
-

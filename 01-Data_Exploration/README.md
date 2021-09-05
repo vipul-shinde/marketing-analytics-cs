@@ -58,7 +58,6 @@ LIMIT 5;
 | 1502      | 2005-06-15T22:03:14.000Z | 3277         | 5           | 2005-06-23T18:42:14.000Z | 2        | 2006-02-15T21:30:53.000Z |
 | 1631      | 2005-06-16T08:01:02.000Z | 2466         | 5           | 2005-06-19T09:04:02.000Z | 1        | 2006-02-15T21:30:53.000Z |
 
-
 ## 1.2 inventory table
 
 The inventory table consists of all the records of avalaible film copies and the store which they belong to.
@@ -149,7 +148,6 @@ LIMIT 10;
 | 4       | AFFAIR PREJUDICE | A Fanciful Documentary of a Frisbee And a Lumberjack who must Chase a Monkey in A Shark Tank                          | 2006         | 1           | 5               | 2.99        | 117    | 26.99            | G      | 2006-02-15T05:03:42.000Z |
 | 5       | AFRICAN EGG      | A Fast-Paced Documentary of a Pastry Chef And a Dentist who must Pursue a Forensic Psychologist in The Gulf of Mexico | 2006         | 1           | 6               | 2.99        | 130    | 22.99            | G      | 2006-02-15T05:03:42.000Z |
 
-
 Let's also take a look at the total number of unique film id we got in the table.
 
 ```sql
@@ -168,7 +166,7 @@ So, in total there are 1000 unique films in our ```film``` table.
 
 ## 1.4 film_category table
 
-The film category table maps each film to a ```category_id``` it belongs too. 
+The film category table maps each film to a ```category_id``` it belongs too.
 
 ```sql
 SELECT * 
@@ -191,7 +189,7 @@ LIMIT 10;
 
 ## 1.5 category table
 
-This table maps each category_id to its ```name```. 
+This table maps each category_id to its ```name```.
 
 ```sql
 SELECT * 
