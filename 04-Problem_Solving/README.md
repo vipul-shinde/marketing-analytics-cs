@@ -567,6 +567,7 @@ INNER JOIN customer_category_percentiles AS t4
   AND t1.category_name = t4.category_name
 );
 
+-- Display the table records for customer_id = 1
 SELECT *
 FROM customer_category_join_table
 WHERE customer_id = 1
@@ -591,4 +592,53 @@ ORDER BY percentile;
 | 1           | Foreign       | 1            | 32            | 2                    | 62         |
 | 1           | Documentary   | 1            | 32            | 2                    | 65         |
 | 1           | Family        | 1            | 32            | 2                    | 66         |
+
+Therefore, only thing remaining wrt categories are the calculated fields such as ```avg_comparison``` and ```category_percentage```. Lets work on that next.
+
+## 4.6 Adding calculated fields
+
+Two fields remaining are ```avg_comparison``` which the comparison between customers rental_count & average of all customers across the data and ```category_percentage``` displaying how much % does a category contribute to for a particular user.
+
+```sql
+DROP TABLE IF EXISTS customer_category_join_table;
+CREATE TEMP TABLE customer_category_join_table AS (
+SELECT
+  t1.customer_id,
+  t1.category_name,
+  t1.rental_count,
+  t1.latest_rental_date,
+  t2.total_rentals,
+  t3.average_rental_value,
+  t4.percentile,
+  t1.rental_count - t3.average_rental_value AS average_comparison,
+  ROUND(100 * t1.rental_count / t2.total_rentals) AS category_percentage
+FROM category_rental_count AS t1
+INNER JOIN customer_total_rentals AS t2
+  ON t1.customer_id = t2.customer_id
+INNER JOIN average_category_rental_counts as t3
+  ON t1.category_name = t3.category_name
+INNER JOIN customer_category_percentiles AS t4
+  ON t1.customer_id = t4.customer_id
+  AND t1.category_name = t4.category_name
+);
+
+-- See the records for customer_id = 1
+SELECT *
+FROM customer_category_join_table
+WHERE customer_id = 1
+ORDER BY percentile
+LIMIT 5;
+```
+
+*Output:*
+
+| customer_id | category_name | rental_count | latest_rental_date       | total_rentals | average_rental_value | percentile | average_comparison | category_percentage |
+|-------------|---------------|--------------|--------------------------|---------------|----------------------|------------|--------------------|---------------------|
+| 1           | Comedy        | 5            | 2005-08-22T19:41:37.000Z | 32            | 1                    | 1          | 4                  | 16                  |
+| 1           | Classics      | 6            | 2005-08-19T09:55:16.000Z | 32            | 2                    | 1          | 4                  | 19                  |
+| 1           | Drama         | 4            | 2005-08-18T03:57:29.000Z | 32            | 2                    | 3          | 2                  | 13                  |
+| 1           | Music         | 2            | 2005-07-09T16:38:01.000Z | 32            | 1                    | 21         | 1                  | 6                   |
+| 1           | New           | 2            | 2005-08-19T13:56:54.000Z | 32            | 2                    | 27         | 0                  | 6                   |
+
+Now, we have the required columns which are category based for all our customers and across all categories.
 
