@@ -172,3 +172,80 @@ FROM customer_sales;
 | A           | 2       | 100            | 183.33             | 300       |
 | B           | 3       | 200            | 200.00             | 300       |
 
+## 3. Limit implications and RANDOM() function
+
+We will be using hour ```health.user_logs``` dataset from our health analytics mini case study here as shown below.
+
+```sql
+SELECT
+  measure,
+  COUNT(*) AS frequency,
+  ROUND(
+    100 * COUNT(*)/SUM(COUNT(*)) OVER (),
+    2
+  ) AS percentage,
+  SUM(COUNT(*)) OVER() AS total
+FROM health.user_logs
+GROUP BY measure;
+```
+
+*Output:*
+
+| measure        | frequency | percentage | total |
+|----------------|-----------|------------|-------|
+| blood_glucose  | 38692     | 88.15      | 43891 |
+| blood_pressure | 2417      | 5.51       | 43891 |
+| weight         | 2782      | 6.34       | 43891 |
+
+Sometimes you want to run a query on a subset of the given dataset to quickly look on something. You can use a CTE with a ```LIMIT``` keyword and then run your query on it as shown below.
+
+```sql
+WITH summarized_data AS (
+SELECT 
+  measure
+FROM health.user_logs
+LIMIT 1000
+)
+
+SELECT
+  measure,
+  COUNT(*) AS frequency,
+  SUM(COUNT(*)) OVER () AS total
+FROM summarized_data
+GROUP BY measure;
+```
+
+*Output:*
+
+| measure        | frequency | total |
+|----------------|-----------|-------|
+| blood_glucose  | 853       | 1000  |
+| blood_pressure | 68        | 1000  |
+| weight         | 79        | 1000  |
+
+But, the problem with this subset is that most of the times it may not contain data from all the given categories and our analysis can be skewed because of that. In order to solve that, we will use a window function called ```RANDOM()``` along with a ```WHERE``` clause whose values ranges from 0 to 1. Let's use this ```RANDOM()``` to subset 10% of our data.
+
+```sql
+WITH summarized_data AS (
+SELECT 
+  measure
+FROM health.user_logs
+-- Using RANDOM() window function to keep 10% of data
+WHERE RANDOM() <=0.1
+)
+
+SELECT
+  measure,
+  COUNT(*) AS frequency,
+  SUM(COUNT(*)) OVER () AS total
+FROM summarized_data
+GROUP BY measure;
+```
+
+*Output:*
+
+| measure        | frequency | total |
+|----------------|-----------|-------|
+| blood_pressure | 240       | 4457  |
+| blood_glucose  | 3933      | 4457  |
+| weight         | 284       | 4457  |
