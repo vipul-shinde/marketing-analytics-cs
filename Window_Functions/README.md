@@ -6,13 +6,9 @@ Window functions are operations or calculations performed on “window frames”
 
 Let's write down a simple window function syntax and then elaborate it further. There are basically 4 main components viz. ```CALCULATION```, ```PARTITION BY```, ```ORDER BY``` & ```FRAME CLAUSE```.
 
-![Window function Components](images\window_func_components.png)
-
 ## 2. Understanding Partition by
 
 We can understand the ```Partition BY``` easily when comparing to the ```GROUP BY``` clause.
-
-![Partition by](images/basic_partition_by.png)
 
 Before that let's create a basic temp table and then further dig in with our window functions. 
 
@@ -72,8 +68,6 @@ FROM customer_sales;
 ### 2.1 Partition by 2 columns
 
 Now, we'll see how partition by 2 columns works when used with a window function.
-
-![Partition by 2 columns](images/partition_by_two.png)
 
 We create a new temp table for this with a few changes.
 
