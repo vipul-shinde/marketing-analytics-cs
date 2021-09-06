@@ -642,3 +642,51 @@ LIMIT 5;
 
 Now, we have the required columns which are category based for all our customers and across all categories.
 
+## 4.7 Adding a row_number() and filtering top 2 categories
+
+Here, we will use the ```ROW_NUMBER``` window function which will give us a row number based on the rental_count and latest_rental_date for each of our customer. Then, we can filter out the top two rows as required to solve the case study.
+
+```sql
+DROP TABLE IF EXISTS top_categories_information;
+CREATE TEMP TABLE top_categories_information AS (
+WITH ordered_customer_join_table AS (
+  SELECT 
+    customer_id,
+    ROW_NUMBER() OVER (
+      PARTITION BY customer_id
+      ORDER BY rental_count DESC, latest_rental_date DESC
+    ) AS category_rank,
+    rental_count,
+    average_comparison,
+    percentile,
+    category_percentage
+  FROM customer_category_join_table
+)
+
+-- Filter out the top 2 ranking categories for each customer
+SELECT *
+FROM ordered_customer_join_table
+WHERE category_rank <= 2
+);
+```
+
+Lets check the output of the table for our first 3 customers.
+
+```sql
+SELECT *
+FROM top_categories_information
+WHERE customer_id IN (1, 2, 3);
+```
+
+*Output:*
+
+| customer_id | category_rank | rental_count | average_comparison | percentile | category_percentage |
+|-------------|---------------|--------------|--------------------|------------|---------------------|
+| 1           | 1             | 6            | 4                  | 1          | 19                  |
+| 1           | 2             | 5            | 4                  | 1          | 16                  |
+| 2           | 1             | 5            | 3                  | 3          | 19                  |
+| 2           | 2             | 4            | 2                  | 2          | 15                  |
+| 3           | 1             | 4            | 2                  | 5          | 15                  |
+| 3           | 2             | 3            | 1                  | 15         | 12                  |
+
+Amazing, and that's what we want to fill in few of our business requirements from the email template.
