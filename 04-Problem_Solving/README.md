@@ -399,3 +399,196 @@ ORDER BY average_rental_value DESC;
 | Travel        | 1.89                 |
 | Horror        | 1.88                 |
 | Music         | 1.86                 |
+
+It will be awkward though to tell our customers that your average is 6.27 more than the dvd rental co average in this category. So, let's just floor these values and we can do that by updating the table.
+
+```sql
+UPDATE average_category_rental_counts
+SET average_rental_value = FLOOR(average_rental_value)
+RETURNING *;
+```
+
+*Output:*
+
+| category_name | average_rental_value |
+|---------------|----------------------|
+| Sports        | 2                    |
+| Classics      | 2                    |
+| New           | 2                    |
+| Family        | 2                    |
+| Comedy        | 1                    |
+| Animation     | 2                    |
+| Travel        | 1                    |
+| Music         | 1                    |
+| Horror        | 1                    |
+| Drama         | 2                    |
+| Sci-Fi        | 2                    |
+| Games         | 2                    |
+| Documentary   | 2                    |
+| Foreign       | 2                    |
+| Action        | 2                    |
+| Children      | 1                    |
+
+We can check out the new updated table to confirm if our update was successful.
+
+```sql
+SELECT *
+FROM average_category_rental_counts;
+```
+
+*Output:*
+
+Same as above!
+
+### 4.4.4 Percentile rank
+
+We need to display the percentile rank of the customer in terms of top X% based on that particular category. We can implement this by using the ```PERCENT_RANK``` window function. 
+
+```sql
+SELECT 
+  customer_id,
+  category_name,
+  rental_count,
+  PERCENT_RANK() OVER (
+    PARTITION BY category_name
+    ORDER BY rental_count DESC
+  ) AS percentile
+FROM category_rental_count
+ORDER BY 
+  customer_id,
+  rental_count DESC
+LIMIT 10;
+```
+
+*Output:*
+
+| customer_id | category_name | rental_count | percentile            |
+|-------------|---------------|--------------|-----------------------|
+| 1           | Classics      | 6            | 0.0021413276231263384 |
+| 1           | Comedy        | 5            | 0.006072874493927126  |
+| 1           | Drama         | 4            | 0.03                  |
+| 1           | Sports        | 2            | 0.34555984555984554   |
+| 1           | Sci-Fi        | 2            | 0.30039525691699603   |
+| 1           | Music         | 2            | 0.2040358744394619    |
+| 1           | Animation     | 2            | 0.38877755511022044   |
+| 1           | New           | 2            | 0.2676659528907923    |
+| 1           | Action        | 2            | 0.33398821218074654   |
+| 1           | Foreign       | 1            | 0.6178861788617886    |
+
+Here, the percentile values are shown from range 0 to 1 which will not be useful for us so lets multiply it by 100 and take the ceiling value of it.
+
+```sql
+SELECT 
+  customer_id,
+  category_name,
+  rental_count,
+  CEILING(
+      100 * PERCENT_RANK() OVER (
+        PARTITION BY category_name
+        ORDER BY rental_count DESC
+    )
+  ) AS percentile
+FROM category_rental_count
+ORDER BY 
+  customer_id,
+  rental_count DESC
+LIMIT 10;
+```
+
+*Output:*
+
+| customer_id | category_name | rental_count | percentile |
+|-------------|---------------|--------------|------------|
+| 1           | Classics      | 6            | 1          |
+| 1           | Comedy        | 5            | 1          |
+| 1           | Drama         | 4            | 3          |
+| 1           | Sports        | 2            | 35         |
+| 1           | Sci-Fi        | 2            | 31         |
+| 1           | Music         | 2            | 21         |
+| 1           | Animation     | 2            | 39         |
+| 1           | New           | 2            | 27         |
+| 1           | Action        | 2            | 34         |
+| 1           | Foreign       | 1            | 62         |
+
+Now, these percentile values look reasonable. Lets store these values in another temp table.
+
+```sql
+DROP TABLE IF EXISTS customer_category_percentiles;
+CREATE TEMP TABLE customer_category_percentiles AS (
+SELECT 
+  customer_id,
+  category_name,
+  rental_count,
+  CEILING(
+      100 * PERCENT_RANK() OVER (
+        PARTITION BY category_name
+        ORDER BY rental_count DESC
+    )
+  ) AS percentile
+FROM category_rental_count
+);
+
+SELECT *
+FROM customer_category_percentiles
+ORDER BY 
+  customer_id,
+  rental_count DESC
+LIMIT 2;
+```
+
+*Output:*
+
+| customer_id | category_name | rental_count | percentile |
+|-------------|---------------|--------------|------------|
+| 1           | Classics      | 6            | 1          |
+| 1           | Comedy        | 5            | 1          |
+
+## 4.5 Joining temporary tables
+
+So, now that we have created multiple temporary tables for different aggregations, we can join them in a same as before using ```INNER JOIN```. 
+
+```sql
+DROP TABLE IF EXISTS customer_category_join_table;
+CREATE TEMP TABLE customer_category_join_table AS (
+SELECT
+  t1.customer_id,
+  t1.category_name,
+  t1.rental_count,
+  t2.total_rentals,
+  t3.average_rental_value,
+  t4.percentile
+FROM category_rental_count AS t1
+INNER JOIN customer_total_rentals AS t2
+  ON t1.customer_id = t2.customer_id
+INNER JOIN average_category_rental_counts as t3
+  ON t1.category_name = t3.category_name
+INNER JOIN customer_category_percentiles AS t4
+  ON t1.customer_id = t4.customer_id
+  AND t1.category_name = t4.category_name
+);
+
+SELECT *
+FROM customer_category_join_table
+WHERE customer_id = 1
+ORDER BY percentile;
+```
+
+*Output:*
+
+| customer_id | category_name | rental_count | total_rentals | average_rental_value | percentile |
+|-------------|---------------|--------------|---------------|----------------------|------------|
+| 1           | Classics      | 6            | 32            | 2                    | 1          |
+| 1           | Comedy        | 5            | 32            | 1                    | 1          |
+| 1           | Drama         | 4            | 32            | 2                    | 3          |
+| 1           | Music         | 2            | 32            | 1                    | 21         |
+| 1           | New           | 2            | 32            | 2                    | 27         |
+| 1           | Sci-Fi        | 2            | 32            | 2                    | 31         |
+| 1           | Action        | 2            | 32            | 2                    | 34         |
+| 1           | Sports        | 2            | 32            | 2                    | 35         |
+| 1           | Animation     | 2            | 32            | 2                    | 39         |
+| 1           | Travel        | 1            | 32            | 1                    | 58         |
+| 1           | Games         | 1            | 32            | 2                    | 61         |
+| 1           | Foreign       | 1            | 32            | 2                    | 62         |
+| 1           | Documentary   | 1            | 32            | 2                    | 65         |
+| 1           | Family        | 1            | 32            | 2                    | 66         |
+
