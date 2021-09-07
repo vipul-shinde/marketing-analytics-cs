@@ -793,3 +793,122 @@ WHERE market_date IN (
 | 2020-10-12  | 11296.082031 | 11428.813477 | 11288.627930 | 11384.181641 | 11384.181641         | 19968627060 |
 | 2020-10-13  | null         | null         | null         | null         | null                 | null        |
 
+Looks like the values are not updated for the date ```2020-10-13```. Lets check it out why that is happening. We can pull up that date from our main table.
+
+```sql
+SELECT *
+FROM trading.daily_btc
+WHERE market_date BETWEEN ('2020-10-10'::DATE) AND ('2020-10-14'::DATE);
+```
+
+*Output:*
+
+| market_date | open_price   | high_price   | low_price    | close_price  | adjusted_close_price | volume      |
+|-------------|--------------|--------------|--------------|--------------|----------------------|-------------|
+| 2020-10-10  | 11059.142578 | 11442.210938 | 11056.940430 | 11296.361328 | 11296.361328         | 22877978588 |
+| 2020-10-11  | 11296.082031 | 11428.813477 | 11288.627930 | 11384.181641 | 11384.181641         | 19968627060 |
+| 2020-10-12  | null         | null         | null         | null         | null                 | null        |
+| 2020-10-13  | null         | null         | null         | null         | null                 | null        |
+| 2020-10-14  | 11429.047852 | 11539.977539 | 11307.831055 | 11429.506836 | 11429.506836         | 24103426719 |
+
+So, there is a null value before ```2020-10-13``` as well hence we are getting NULL in LAG function output too. Let's fix that by changing the OFFSET value to 2.
+
+Lets create a copy of our newly created temp table and see how we can update this row value when market_date = ```2020-10-13```.
+
+```sql
+DROP TABLE IF EXISTS testing_updated_daily_btc;
+CREATE TABLE testing_updated_daily_btc AS (
+SELECT * FROM updated_daily_btc
+);
+```
+
+As we cannot use window functions in an update query, we'll have to delete that row of the columns and then insert it again with the ```LAG``` value and offset = 2.
+
+```sql
+DELETE FROM testing_updated_daily_btc
+WHERE market_date = '2020-10-13'
+RETURNING *;
+```
+
+*Output:*
+
+| market_date | open_price | high_price | low_price | close_price | adjusted_close_price | volume |
+|-------------|------------|------------|-----------|-------------|----------------------|--------|
+| 2020-10-13  | null       | null       | null      | null        | null                 | null   |
+
+Now, let's insert the new values into this table. Since, we already know that we need to fill in the values of ```2020-10-12``` for```2020-10-13``` as well, we can do it directly or use a CTE to insert it.
+
+```sql
+INSERT INTO testing_updated_daily_btc
+WITH calculated_values AS(
+SELECT
+  market_date,
+  COALESCE(
+    open_price,
+    LAG(open_price, 1) OVER (ORDER BY market_date),
+    LAG(open_price, 2) OVER (ORDER BY market_date)
+  ) AS open_price,
+  COALESCE(
+    high_price,
+    LAG(high_price, 1) OVER (ORDER BY market_date),
+    LAG(open_price, 2) OVER (ORDER BY market_date)
+  ) AS high_price,
+  COALESCE(
+    low_price,
+    LAG(low_price, 1) OVER (ORDER BY market_date),
+    LAG(open_price, 2) OVER (ORDER BY market_date)
+  ) AS low_price,
+  COALESCE(
+    close_price,
+    LAG(close_price, 1) OVER (ORDER BY market_date),
+    LAG(open_price, 2) OVER (ORDER BY market_date)
+  ) AS close_price,
+    COALESCE(
+    adjusted_close_price,
+    LAG(adjusted_close_price, 1) OVER (ORDER BY market_date),
+    LAG(open_price, 2) OVER (ORDER BY market_date)
+  ) AS adjusted_close_price,
+    COALESCE(
+    volume,
+    LAG(volume, 1) OVER (ORDER BY market_date),
+    LAG(open_price, 2) OVER (ORDER BY market_date)
+  ) AS volume
+FROM trading.daily_btc
+WHERE market_date BETWEEN ('2020-10-11'::DATE) AND ('2020-10-13'::DATE)
+)
+
+SELECT *
+FROM calculated_values
+WHERE market_date = '2020-10-13'
+RETURNING *;
+```
+
+*Output:*
+
+| market_date | open_price   | high_price   | low_price    | close_price  | adjusted_close_price | volume       |
+|-------------|--------------|--------------|--------------|--------------|----------------------|--------------|
+| 2020-10-13  | 11296.082031 | 11296.082031 | 11296.082031 | 11296.082031 | 11296.082031         | 11296.082031 |
+
+Or we could have done it just manually as mentioned above.
+
+```sql
+INSERT INTO testing_updated_daily_btc
+SELECT
+  '2020-10-13'::DATE AS market_date,
+  open_price,
+  high_price,
+  low_price,
+  close_price,
+  adjusted_close_price,
+  volume
+FROM testing_updated_daily_btc
+WHERE market_date = '2020-10-12'
+RETURNING *;
+```
+
+*Output:*
+
+| market_date | open_price   | high_price   | low_price    | close_price  | adjusted_close_price | volume       |
+|-------------|--------------|--------------|--------------|--------------|----------------------|--------------|
+| 2020-10-13  | 11296.082031 | 11296.082031 | 11296.082031 | 11296.082031 | 11296.082031         | 11296.082031 |
+
