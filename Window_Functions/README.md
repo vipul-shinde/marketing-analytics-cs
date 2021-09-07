@@ -367,3 +367,145 @@ These functions return outputs between 0 and 1:
 
 There is also a function called ```NTILE(100)```, but the only difference is you need to pass an input from 1 to 100 to divide the input into n percentiles.
 
+### 4.2 Ascending By
+
+```sql
+DROP TABLE IF EXISTS ordered_window_metrics;
+CREATE TABLE ordered_window_metrics AS (
+SELECT 
+  measure_value,
+  ROW_NUMBER() OVER (ORDER BY measure_value) AS row_number,
+  RANK() OVER (ORDER BY measure_value) AS rank,
+  DENSE_RANK() OVER (ORDER BY measure_value) AS dense_rank,
+  ROUND(
+    PERCENT_RANK() OVER (ORDER BY measure_value)::NUMERIC,
+    5
+  ) AS percent_rank,
+  ROUND(
+    CUME_DIST() OVER (ORDER BY measure_value)::NUMERIC,
+    5
+  ) AS cume_dist,
+  NTILE(100) OVER (ORDER BY measure_value) AS ntile
+FROM health.user_logs
+WHERE measure = 'weight'
+);
+```
+
+*Output:*
+
+None
+
+Top 10 largest values of our new table with all the ordered rank window functions implemented:
+
+```sql
+SELECT *
+FROM ordered_window_metrics
+ORDER BY measure_value DESC
+LIMIT 10;
+```
+
+*Output:*
+
+| measure_value | row_number | rank | dense_rank | percent_rank | cume_dist | ntile |
+|---------------|------------|------|------------|--------------|-----------|-------|
+| 39642120      | 2781       | 2781 | 982        | 0.99964      | 1.00000   | 100   |
+| 39642120      | 2782       | 2781 | 982        | 0.99964      | 1.00000   | 100   |
+| 576484        | 2780       | 2780 | 981        | 0.99928      | 0.99928   | 100   |
+| 200.487664    | 2779       | 2779 | 980        | 0.99892      | 0.99892   | 100   |
+| 190.4         | 2778       | 2778 | 979        | 0.99856      | 0.99856   | 100   |
+| 188.69427     | 2777       | 2777 | 978        | 0.99820      | 0.99820   | 100   |
+| 186.8799      | 2776       | 2776 | 977        | 0.99784      | 0.99784   | 100   |
+| 185.51913     | 2775       | 2775 | 976        | 0.99748      | 0.99748   | 100   |
+| 175.086512    | 2774       | 2774 | 975        | 0.99712      | 0.99712   | 100   |
+| 173.725736    | 2773       | 2773 | 974        | 0.99676      | 0.99676   | 100   |
+
+First 10 smallest values of our new table with all the ordered rank window functions implemented:
+
+```sql
+SELECT *
+FROM ordered_window_metrics
+ORDER BY measure_value
+LIMIT 10;
+```
+
+*Output:*
+
+| measure_value | row_number | rank | dense_rank | percent_rank | cume_dist | ntile |
+|---------------|------------|------|------------|--------------|-----------|-------|
+| 0             | 2          | 1    | 1          | 0.00000      | 0.00072   | 1     |
+| 0             | 1          | 1    | 1          | 0.00000      | 0.00072   | 1     |
+| 1.814368      | 3          | 3    | 2          | 0.00072      | 0.00108   | 1     |
+| 2.26796       | 4          | 4    | 3          | 0.00108      | 0.00180   | 1     |
+| 2.26796       | 5          | 4    | 3          | 0.00108      | 0.00180   | 1     |
+| 8             | 6          | 6    | 4          | 0.00180      | 0.00216   | 1     |
+| 10.432616     | 7          | 7    | 5          | 0.00216      | 0.00252   | 1     |
+| 11.3398       | 8          | 8    | 6          | 0.00252      | 0.00288   | 1     |
+| 12.700576     | 9          | 9    | 7          | 0.00288      | 0.00324   | 1     |
+| 15.422128     | 10         | 10   | 8          | 0.00324      | 0.00359   | 1     |
+
+### 4.3 Descending By
+
+We can also implement the above where all the row values are sorted in a descending order based on the ```measure_value``` column. This time, lets remove the ```WHERE``` filter and apply the window functions across all measures.
+
+```sql
+DROP TABLE IF EXISTS ordered_window_metrics_desc;
+CREATE TABLE ordered_window_metrics_desc AS (
+SELECT 
+  measure,
+  measure_value,
+  ROW_NUMBER() OVER (
+    PARTITION BY measure
+    ORDER BY measure_value DESC
+  ) AS row_number,
+  RANK() OVER (
+    PARTITION BY measure
+    ORDER BY measure_value DESC
+  ) AS rank,
+  DENSE_RANK() OVER (
+    PARTITION BY measure
+    ORDER BY measure_value DESC
+  ) AS dense_rank,
+  ROUND(
+    PERCENT_RANK() OVER (
+      PARTITION BY measure
+      ORDER BY measure_value DESC)::NUMERIC,
+    5
+  ) AS percent_rank,
+  ROUND(
+    CUME_DIST() OVER (
+      PARTITION BY measure
+      ORDER BY measure_value DESC)::NUMERIC,
+    5
+  ) AS cume_dist,
+  NTILE(100) OVER (ORDER BY measure_value DESC) AS ntile
+FROM health.user_logs
+);
+```
+
+Now, we check the top 3 values for each ```measure``` value.
+
+```sql
+SELECT *
+FROM ordered_window_metrics_desc
+WHERE row_number <=3
+ORDER BY 
+  measure,
+  measure_value DESC;
+```
+
+*Output:*
+
+| measure        | measure_value | row_number | rank | dense_rank | percent_rank | cume_dist | ntile |
+|----------------|---------------|------------|------|------------|--------------|-----------|-------|
+| blood_glucose  | 227228        | 1          | 1    | 1          | 0.00000      | 0.00003   | 1     |
+| blood_glucose  | 5400          | 2          | 2    | 2          | 0.00003      | 0.00005   | 1     |
+| blood_glucose  | 4500          | 3          | 3    | 3          | 0.00005      | 0.00008   | 1     |
+| blood_pressure | 189           | 1          | 1    | 1          | 0.00000      | 0.00041   | 30    |
+| blood_pressure | 184           | 2          | 2    | 2          | 0.00041      | 0.00124   | 32    |
+| blood_pressure | 184           | 3          | 2    | 2          | 0.00041      | 0.00124   | 32    |
+| weight         | 39642120      | 1          | 1    | 1          | 0.00000      | 0.00072   | 1     |
+| weight         | 39642120      | 2          | 1    | 1          | 0.00000      | 0.00072   | 1     |
+| weight         | 576484        | 3          | 3    | 2          | 0.00072      | 0.00108   | 1     |
+
+
+
