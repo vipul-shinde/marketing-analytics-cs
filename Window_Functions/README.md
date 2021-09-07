@@ -249,3 +249,33 @@ GROUP BY measure;
 | blood_pressure | 240       | 4457  |
 | blood_glucose  | 3933      | 4457  |
 | weight         | 284       | 4457  |
+
+Here, every time you try to run the RANDOM() function, it'll give you a different output. Therefore, in order to get the same output every time you run the query with random function, you can ```SETSEED(.)``` select whose values range from -1 to 1.
+
+```sql
+SELECT SETSEED(0.8);
+
+-- CTE method
+WITH summarized_data AS (
+SELECT
+  measure
+FROM health.user_logs
+-- RANDOM() returns 0 <= value < 1 when there are no argument inputs!
+WHERE RANDOM() <= 0.1
+)
+SELECT
+  measure,
+  COUNT(*) AS frequency,
+  SUM(COUNT(*)) OVER () AS total
+FROM summarized_data
+GROUP BY measure;
+```
+
+*Output:*
+
+| measure        | frequency | total |
+|----------------|-----------|-------|
+| blood_pressure | 261       | 4239  |
+| blood_glucose  | 3717      | 4239  |
+| weight         | 261       | 4239  |
+
