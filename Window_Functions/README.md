@@ -279,3 +279,91 @@ GROUP BY measure;
 | blood_glucose  | 3717      | 4239  |
 | weight         | 261       | 4239  |
 
+## 4. Ordered Window Functions
+
+We have already used the ```PARTITION BY``` clause before to divide the data based on the column. Now, we will use the ```ORDER BY``` clause with window functions which works same as it would in a regular SQL query.
+
+Let's create a new sample dataset with a little bit changes from above.
+
+```sql
+DROP TABLE IF EXISTS customer_sales;
+CREATE TEMP TABLE customer_sales AS
+WITH input_data (customer_id, sales_date, sales) AS (
+ VALUES
+ ('A', '2021-01-01'::DATE, 300),
+ ('A', '2021-01-02'::DATE, 150),
+ ('B', '2021-01-03'::DATE, 100),
+ ('B', '2021-01-02'::DATE, 200)
+)
+SELECT * FROM input_data;
+```
+
+| customer_id | sales_date               | sales |
+|-------------|--------------------------|-------|
+| A           | 2021-01-01T00:00:00.000Z | 300   |
+| A           | 2021-01-02T00:00:00.000Z | 150   |
+| B           | 2021-01-03T00:00:00.000Z | 100   |
+| B           | 2021-01-02T00:00:00.000Z | 200   |
+
+Let's use the ```RANK()``` window function which ranks your output based on their order in the table. Here, we might want to ```ORDER BY``` the rows based on a column so the ranks are correct.
+
+```sql
+SELECT 
+  customer_id,
+  sales_date,
+  sales,
+  RANK() OVER (
+    PARTITION BY customer_id
+    ORDER BY sales_date DESC
+  ) AS sales_date_rank
+FROM customer_sales;
+```
+
+*Output:*
+
+| customer_id | sales_date               | sales | sales_date_rank |
+|-------------|--------------------------|-------|-----------------|
+| A           | 2021-01-02T00:00:00.000Z | 150   | 1               |
+| A           | 2021-01-01T00:00:00.000Z | 300   | 2               |
+| B           | 2021-01-03T00:00:00.000Z | 100   | 1               |
+| B           | 2021-01-02T00:00:00.000Z | 200   | 2               |
+
+If we remove the partition by clause from the rank function, it will run but on all the rows.
+
+```sql
+SELECT 
+  customer_id,
+  sales_date,
+  sales,
+  RANK() OVER (
+    ORDER BY sales_date DESC
+  ) AS sales_date_rank
+FROM customer_sales;
+```
+
+*Output:*
+
+| customer_id | sales_date               | sales | sales_date_rank |
+|-------------|--------------------------|-------|-----------------|
+| B           | 2021-01-03T00:00:00.000Z | 100   | 1               |
+| A           | 2021-01-02T00:00:00.000Z | 150   | 2               |
+| B           | 2021-01-02T00:00:00.000Z | 200   | 2               |
+| A           | 2021-01-01T00:00:00.000Z | 300   | 4               |
+
+### 4.1 Different ordering window functions
+
+The most popular ordered window function calculations are the following - note that all of them do not need any inputs:
+
+These function return integers:
+
+- ```ROW_NUMBER()```
+- ```RANK()```
+- ```DENSE_RANK()```
+
+These functions return outputs between 0 and 1:
+
+- ```PERCENT_RANK()```
+- ```CUME_DIST()```
+
+There is also a function called ```NTILE(100)```, but the only difference is you need to pass an input from 1 to 100 to divide the input into n percentiles.
+
