@@ -507,5 +507,200 @@ ORDER BY
 | weight         | 39642120      | 2          | 1    | 1          | 0.00000      | 0.00072   | 1     |
 | weight         | 576484        | 3          | 3    | 2          | 0.00072      | 0.00108   | 1     |
 
+### 4.4 Combining Ascending and Descending by
 
+Let's now create a sql query with only a ```ROW_NUMBER``` function but this time we'll order it in both ascending as well as descending order.
+
+```sql
+DROP TABLE IF EXISTS combined_row_numbers;
+CREATE TABLE combined_row_numbers AS (
+SELECT 
+  measure,
+  measure_value,
+  ROW_NUMBER() OVER (
+    PARTITION BY measure
+    ORDER BY measure_value
+  ) AS ascending,
+  ROW_NUMBER() OVER (
+    PARTITION BY measure
+    ORDER BY measure_value DESC
+  ) AS descending
+FROM health.user_logs
+);
+```
+
+Let's go ahead and take first and last 3 rows of each ```measure``` from our newly created table based on ```measure_value``` count.
+
+```sql
+SELECT *,
+  CASE
+    WHEN ascending <= 3 THEN 'Bottom 3'
+    WHEN descending <= 3 THEN 'Top 3'
+    END AS value_ranking
+FROM combined_row_numbers
+WHERE 
+  ascending <=3 OR
+  descending <=3
+ORDER BY
+  measure,
+  measure_value;
+```
+
+*Output:*
+
+| measure        | measure_value | ascending | descending | value_ranking |
+|----------------|---------------|-----------|------------|---------------|
+| blood_glucose  | -1            | 1         | 38692      | Bottom 3      |
+| blood_glucose  | 0             | 2         | 38691      | Bottom 3      |
+| blood_glucose  | 0             | 3         | 38690      | Bottom 3      |
+| blood_glucose  | 4500          | 38690     | 3          | Top 3         |
+| blood_glucose  | 5400          | 38691     | 2          | Top 3         |
+| blood_glucose  | 227228        | 38692     | 1          | Top 3         |
+| blood_pressure | 0             | 1         | 2260       | Bottom 3      |
+| blood_pressure | 0             | 2         | 2262       | Bottom 3      |
+| blood_pressure | 0             | 3         | 2263       | Bottom 3      |
+| blood_pressure | 184           | 2415      | 2          | Top 3         |
+| blood_pressure | 184           | 2416      | 3          | Top 3         |
+| blood_pressure | 189           | 2417      | 1          | Top 3         |
+| weight         | 0             | 1         | 2782       | Bottom 3      |
+| weight         | 0             | 2         | 2781       | Bottom 3      |
+| weight         | 1.814368      | 3         | 2780       | Bottom 3      |
+| weight         | 576484        | 2780      | 3          | Top 3         |
+| weight         | 39642120      | 2781      | 2          | Top 3         |
+| weight         | 39642120      | 2782      | 1          | Top 3         |
+
+## 5. Advanced Window Functions
+
+We will be using a new dataset which contains the bitcoins trading values for a few days. 
+
+```sql
+SELECT *
+FROM trading.daily_btc
+LIMIT 5;
+```
+
+*Output:*
+
+| market_date              | open_price | high_price | low_price  | close_price | adjusted_close_price | volume   |
+|--------------------------|------------|------------|------------|-------------|----------------------|----------|
+| 2014-09-17T00:00:00.000Z | 465.864014 | 468.174011 | 452.421997 | 457.334015  | 457.334015           | 21056800 |
+| 2014-09-18T00:00:00.000Z | 456.859985 | 456.859985 | 413.104004 | 424.440002  | 424.440002           | 34483200 |
+| 2014-09-19T00:00:00.000Z | 424.102997 | 427.834991 | 384.532013 | 394.795990  | 394.795990           | 37919700 |
+| 2014-09-20T00:00:00.000Z | 394.673004 | 423.295990 | 389.882996 | 408.903992  | 408.903992           | 36863600 |
+| 2014-09-21T00:00:00.000Z | 408.084991 | 412.425995 | 393.181000 | 398.821014  | 398.821014           | 26580100 |
+
+### 5.1 Lag & Lead Window Functions
+
+Lag and Lead window functions do not perform calculations on the window frame records - but rather they simply grab the value before or after the current row respectively.
+
+#### 5.1.1 Indentifying null values
+
+There are number of ways where you could get the rows which contain any null values. One way is called propagation of ```NULL``` values where you add ```NULL``` value to a number and it'll simply return a null!
+
+```sql
+SELECT *
+FROM trading.daily_btc
+WHERE (
+  open_price+high_price+low_price+
+  close_price+adjusted_close_price+volume
+) IS NULL;
+```
+
+*Output:*
+
+| market_date | open_price | high_price | low_price | close_price | adjusted_close_price | volume |
+|--------------------------|------------|------------|-----------|-------------|----------------------|--------|
+| 2020-04-17  | null       | null       | null      | null        | null                 | null   |
+| 2020-10-09  | null       | null       | null      | null        | null                 | null   |
+| 2020-10-12  | null       | null       | null      | null        | null                 | null   |
+| 2020-10-13  | null       | null       | null      | null        | null                 | null   |
+
+Let's save this date for future use when we do the lag and lead functions
+
+```sql
+WHERE market_date IN (
+    '2020-04-17',
+    '2020-10-09',
+    '2020-10-12',
+    '2020-10-13'
+)
+```
+
+#### 5.1.2 Filling Null values
+
+Let's try to fill in the null value for our first date ```2020-04-17```, which contains all nulls. 
+
+```sql
+SELECT *
+FROM trading.daily_btc
+WHERE market_date BETWEEN ('2020-04-17'::DATE - 1) AND ('2020-04-17'::DATE + 1);
+```
+
+*Output:*
+
+| market_date              | open_price  | high_price  | low_price   | close_price | adjusted_close_price | volume      |
+|--------------------------|-------------|-------------|-------------|-------------|----------------------|-------------|
+| 2020-04-16T00:00:00.000Z | 6640.454102 | 7134.450684 | 6555.504395 | 7116.804199 | 7116.804199          | 46783242377 |
+| 2020-04-17T00:00:00.000Z | null        | null        | null        | null        | null                 | null        |
+| 2020-04-18T00:00:00.000Z | 7092.291504 | 7269.956543 | 7089.247070 | 7257.665039 | 7257.665039          | 32447188386 |
+
+There are a couple of ways with which we can fill in the ```NULL``` values viz. 1) mean/mode/median of that column, 2) fill it up with 0. But, as these are trade prices we cannot do either of two as it doesn't make any sense. Instead, what we can do is fill it with the previous day value using ```LAG``` window function.
+
+Let's try filling out the ```open_price``` column for the above table. 
+
+```sql
+SELECT 
+  market_date,
+  open_price,
+  LAG(open_price, 1) OVER(ORDER BY market_date) AS lag_open_price
+FROM trading.daily_btc
+WHERE market_date BETWEEN ('2020-04-17'::DATE - 1) AND ('2020-04-17'::DATE + 1);
+```
+
+*Output:*
+
+| market_date | open_price  | lag_open_price |
+|-------------|-------------|----------------|
+| 2020-04-16  | 6640.454102 | null           |
+| 2020-04-17  | null        | 6640.454102    |
+| 2020-04-18  | 7092.291504 | null           |
+
+Here, we can see that the lag price for the date ```2020-04-16``` is still null mainly because of the WHERE clause we have used. So, to solve this there is a third option in the LAG() function which will fill in the default value we mention.
+
+```sql
+SELECT 
+  market_date,
+  open_price,
+  LAG(open_price, 1, 6000::NUMERIC) OVER(ORDER BY market_date) AS lag_open_price
+FROM trading.daily_btc
+WHERE market_date BETWEEN ('2020-04-17'::DATE - 1) AND ('2020-04-17'::DATE + 1);
+```
+
+*Output:*
+
+| market_date | open_price  | lag_open_price |
+|-------------|-------------|----------------|
+| 2020-04-16  | 6640.454102 | 6000           |
+| 2020-04-17  | null        | 6640.454102    |
+| 2020-04-18  | 7092.291504 | null           |
+
+Next is the ```LEAD()``` window function which works exactly the same way as lag but instead of looking at the previous row value, it will take in the next row value.
+
+```sql
+SELECT 
+  market_date,
+  open_price,
+  LAG(open_price, 1, 6000::NUMERIC) OVER(ORDER BY market_date) AS lag_open_price,
+  LEAD(open_price, 1, 7000::NUMERIC) OVER (ORDER BY market_date DESC) AS lead_open_price
+FROM trading.daily_btc
+WHERE market_date BETWEEN ('2020-04-17'::DATE - 1) AND ('2020-04-17'::DATE + 1);
+```
+
+*Output:*
+
+| market_date | open_price  | lag_open_price | lead_open_price |
+|-------------|-------------|----------------|-----------------|
+| 2020-04-16  | 6640.454102 | 6000           | 7000            |
+| 2020-04-17  | null        | 6640.454102    | 6640.454102     |
+| 2020-04-18  | 7092.291504 | null           | null            |
 
