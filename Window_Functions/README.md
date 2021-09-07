@@ -704,3 +704,92 @@ WHERE market_date BETWEEN ('2020-04-17'::DATE - 1) AND ('2020-04-17'::DATE + 1);
 | 2020-04-17  | null        | 6640.454102    | 6640.454102     |
 | 2020-04-18  | 7092.291504 | null           | null            |
 
+#### 5.1.3 Coalesce to update null rows
+
+Now that we have learned the proper use of ```LAG``` & ```LEAD```, lets see how we can use them to update the null row values. 
+
+```sql
+WITH april_17_data AS (
+SELECT 
+  market_date,
+  open_price,
+  LAG(open_price, 1) OVER (ORDER BY market_date) AS lag_open_price
+FROM trading.daily_btc
+WHERE market_date BETWEEN ('2020-04-17'::DATE - 1) AND ('2020-04-17'::DATE + 1)
+)
+
+SELECT
+  market_date,
+  open_price,
+  lag_open_price,
+  COALESCE(open_price, lag_open_price) AS coalesce_open_price
+FROM april_17_data;
+```
+
+*Output:*
+
+| market_date | open_price  | lag_open_price | coalesce_open_price |
+|-------------|-------------|----------------|---------------------|
+| 2020-04-16  | 6640.454102 | null           | 6640.454102         |
+| 2020-04-17  | null        | 6640.454102    | 6640.454102         |
+| 2020-04-18  | 7092.291504 | null           | 7092.291504         |
+
+### 5.2 Update tables
+
+Here, we update our null values in the table using ```LAG``` window function. Let's just create a new temporary table.
+
+```sql
+DROP TABLE IF EXISTS updated_daily_btc;
+CREATE TEMP TABLE updated_daily_btc AS (
+SELECT
+  market_date,
+  COALESCE(
+    open_price,
+    LAG(open_price, 1) OVER (ORDER BY market_date)
+  ) AS open_price,
+  COALESCE(
+    high_price,
+    LAG(high_price, 1) OVER (ORDER BY market_date)
+  ) AS high_price,
+  COALESCE(
+    low_price,
+    LAG(low_price, 1) OVER (ORDER BY market_date)
+  ) AS low_price,
+  COALESCE(
+    close_price,
+    LAG(close_price, 1) OVER (ORDER BY market_date)
+  ) AS close_price,
+    COALESCE(
+    adjusted_close_price,
+    LAG(adjusted_close_price, 1) OVER (ORDER BY market_date)
+  ) AS adjusted_close_price,
+    COALESCE(
+    volume,
+    LAG(volume, 1) OVER (ORDER BY market_date)
+  ) AS volume
+FROM trading.daily_btc
+);
+```
+
+Now, we should check the values for the null rows that we previously mentioned. It should be filled up with new values.
+
+```sql
+SELECT *
+FROM updated_daily_btc
+WHERE market_date IN (
+    '2020-04-17',
+    '2020-10-09',
+    '2020-10-12',
+    '2020-10-13'
+);
+```
+
+*Output:*
+
+| market_date | open_price   | high_price   | low_price    | close_price  | adjusted_close_price | volume      |
+|-------------|--------------|--------------|--------------|--------------|----------------------|-------------|
+| 2020-04-17  | 6640.454102  | 7134.450684  | 6555.504395  | 7116.804199  | 7116.804199          | 46783242377 |
+| 2020-10-09  | 10677.625000 | 10939.799805 | 10569.823242 | 10923.627930 | 10923.627930         | 21962121001 |
+| 2020-10-12  | 11296.082031 | 11428.813477 | 11288.627930 | 11384.181641 | 11384.181641         | 19968627060 |
+| 2020-10-13  | null         | null         | null         | null         | null                 | null        |
+
