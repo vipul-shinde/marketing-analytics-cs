@@ -912,3 +912,58 @@ RETURNING *;
 |-------------|--------------|--------------|--------------|--------------|----------------------|--------------|
 | 2020-10-13  | 11296.082031 | 11296.082031 | 11296.082031 | 11296.082031 | 11296.082031         | 11296.082031 |
 
+### 5.3 Window Clause Simplification
+
+We can try to simplify the OVER() clause used every time the ```LAG``` window function is called by using the ```WINDOW``` clause and assign an alias to it after we do the FROM statement.
+
+```sql
+DROP TABLE IF EXISTS updated_daily_btc;
+CREATE TABLE updated_daily_btc AS (
+SELECT 
+  market_date,
+  COALESCE(
+    open_price,
+    LAG(open_price) OVER w
+  ) AS open_price,
+    COALESCE(
+    high_price,
+    LAG(high_price) OVER w
+  ) AS high_price,
+    COALESCE(
+    low_price,
+    LAG(low_price) OVER w
+  ) AS low_price,
+    COALESCE(
+    close_price,
+    LAG(close_price) OVER w
+  ) AS close_price,
+    COALESCE(
+    adjusted_close_price,
+    LAG(adjusted_close_price) OVER w
+  ) AS adjusted_close_price,
+    COALESCE(
+    volume,
+    LAG(volume) OVER w
+  ) AS volume
+FROM trading.daily_btc
+WINDOW
+  w AS (ORDER BY market_date),
+  not_w AS (ORDER BY market_date DESC)
+);
+
+-- Display some values of our new updated table
+SELECT *
+FROM updated_daily_btc
+WHERE market_date BETWEEN ('2020-10-08'::DATE) AND ('2020-10-12'::DATE);
+```
+
+*Output:*
+
+| market_date | open_price   | high_price   | low_price    | close_price  | adjusted_close_price | volume      |
+|-------------|--------------|--------------|--------------|--------------|----------------------|-------------|
+| 2020-10-08  | 10677.625000 | 10939.799805 | 10569.823242 | 10923.627930 | 10923.627930         | 21962121001 |
+| 2020-10-09  | 10677.625000 | 10939.799805 | 10569.823242 | 10923.627930 | 10923.627930         | 21962121001 |
+| 2020-10-10  | 11059.142578 | 11442.210938 | 11056.940430 | 11296.361328 | 11296.361328         | 22877978588 |
+| 2020-10-11  | 11296.082031 | 11428.813477 | 11288.627930 | 11384.181641 | 11384.181641         | 19968627060 |
+| 2020-10-12  | 11296.082031 | 11428.813477 | 11288.627930 | 11384.181641 | 11384.181641         | 19968627060 |
+
