@@ -998,3 +998,133 @@ FROM volume_data;
 | 2014-09-20  | 36863600 | 130323300      |
 | 2014-09-21  | 26580100 | 156903400      |
 
+## 6. Window Frame Clause
+
+The various combinations of window frame options are determined by the intersection of 3 components:
+
+1. Window Frame Modes
+    - ```RANGE``` VS ```ROWS``` (VS ```GROUPS```)
+
+2. Start and End Frames
+    - ```PRECEDING``` VS ```FOLLOWING```
+    - ```UNBOUNDED``` VS ```OFFSET```
+
+3. Frame Exclusions
+    - ```CURRENT ROWS``` VS ```TIES``` VS ```NO OTHERS``` (VS ```GROUP```)
+
+```GROUPS``` is only available in few flavors of SQL including PostgreSQL & SQLite.
+
+Let's create a sample dataset and go through all of these components of the window frame clause. The table only contains one column called ```val``` and we use ```ROW_NUMBER()```, ```DENSE_RANK()``` to create additional columns based of the value in ```val```.
+
+```sql
+DROP TABLE IF EXISTS frame_example;
+CREATE TEMP TABLE frame_example AS
+WITH input_data (val) AS (
+ VALUES
+ (1),
+ (1),
+ (2),
+ (6),
+ (9),
+ (9),
+ (20),
+ (20),
+ (25)
+)
+SELECT
+  val,
+  ROW_NUMBER() OVER w AS _row_number,
+  DENSE_RANK() OVER w AS _dense_rank
+FROM input_data
+WINDOW
+  w AS (ORDER BY val);
+
+SELECT * FROM frame_example;
+```
+
+*Output:*
+
+| val | _row_number | _dense_rank |
+|-----|-------------|-------------|
+| 1   | 1           | 1           |
+| 1   | 2           | 1           |
+| 2   | 3           | 2           |
+| 6   | 4           | 3           |
+| 9   | 5           | 4           |
+| 9   | 6           | 4           |
+| 20  | 7           | 5           |
+| 20  | 8           | 5           |
+| 25  | 9           | 6           |
+
+### 6.1 Default cumulative sum
+
+When we did the cumulative sum earlier for the volume, we used the default window frame clause. Lets try to implement the ```SUM``` but this time on the ```val``` column of our new table.
+
+```sql
+SELECT
+  val,
+  SUM(val) OVER (
+    ORDER BY val
+    -- Default window frame clause
+    RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS cum_sum,
+  _row_number,
+  _dense_rank
+FROM frame_example;
+```
+
+*Output:*
+
+| val | cum_sum | _row_number | _dense_rank |
+|-----|---------|-------------|-------------|
+| 1   | 2       | 1           | 1           |
+| 1   | 2       | 2           | 1           |
+| 2   | 4       | 3           | 2           |
+| 6   | 10      | 4           | 3           |
+| 9   | 28      | 5           | 4           |
+| 9   | 28      | 6           | 4           |
+| 20  | 68      | 7           | 5           |
+| 20  | 68      | 8           | 5           |
+| 25  | 93      | 9           | 6           |
+
+### 6.2 Window Frame Modes
+
+As mentioned above, there are three different window frame modes that we can use with PostgreSQL viz ```RANGE```, ```ROWS``` & ```GROUPS```.
+
+```sql
+SELECT
+  val,
+  SUM(val) OVER (
+    ORDER BY val
+    -- Default window frame clause
+    RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS _range,
+  SUM(val) OVER (
+    ORDER BY val
+    -- Default window frame clause
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS _rows,
+  SUM(val) OVER (
+    ORDER BY val
+    -- Default window frame clause
+    GROUPS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS _groups,
+  _row_number,
+  _dense_rank
+FROM frame_example;
+```
+
+*Output:*
+
+| val | _range | _rows | _groups | _row_number | _dense_rank |
+|-----|--------|-------|---------|-------------|-------------|
+| 1   | 2      | 1     | 2       | 1           | 1           |
+| 1   | 2      | 2     | 2       | 2           | 1           |
+| 2   | 4      | 4     | 4       | 3           | 2           |
+| 6   | 10     | 10    | 10      | 4           | 3           |
+| 9   | 28     | 19    | 28      | 5           | 4           |
+| 9   | 28     | 28    | 28      | 6           | 4           |
+| 20  | 68     | 48    | 68      | 7           | 5           |
+| 20  | 68     | 68    | 68      | 8           | 5           |
+| 25  | 93     | 93    | 93      | 9           | 6           |
+
