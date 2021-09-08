@@ -967,3 +967,34 @@ WHERE market_date BETWEEN ('2020-10-08'::DATE) AND ('2020-10-12'::DATE);
 | 2020-10-11  | 11296.082031 | 11428.813477 | 11288.627930 | 11384.181641 | 11384.181641         | 19968627060 |
 | 2020-10-12  | 11296.082031 | 11428.813477 | 11288.627930 | 11384.181641 | 11384.181641         | 19968627060 |
 
+### 5.4 Cumulative Calculations
+
+We can also use Window function to do cumulative calculations based of a column value. For eg, in the above table if we want a cumulative sum of the volume after every day, we can do something as below:
+
+```sql
+WITH volume_data AS (
+SELECT
+  market_date,
+  volume
+FROM updated_daily_btc
+ORDER BY market_date
+LIMIT 5
+)
+
+SELECT 
+  market_date,
+  volume,
+  SUM(volume) OVER (ORDER BY market_date) AS cumulative_sum
+FROM volume_data;
+```
+
+*Output:*
+
+| market_date | volume   | cumulative_sum |
+|-------------|----------|----------------|
+| 2014-09-17  | 21056800 | 21056800       |
+| 2014-09-18  | 34483200 | 55540000       |
+| 2014-09-19  | 37919700 | 93459700       |
+| 2014-09-20  | 36863600 | 130323300      |
+| 2014-09-21  | 26580100 | 156903400      |
+
