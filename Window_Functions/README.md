@@ -1534,3 +1534,130 @@ LIMIT 10;
 
 ### 7.3 Statistical Analysis
 
+Here, we want to create an indicator column with value 1 whenever the current day’s close price falls outside the moving average plus or minus 2 moving standard deviations. This is also known as a basic confidence interval.
+
+```sql
+WITH base_data AS (
+SELECT
+  market_date,
+  ROUND(close_price, 2) AS close_price,
+  -- Averages
+  ROUND(AVG(close_price) OVER w_14, 2) AS avg_14,
+  ROUND(AVG(close_price) OVER w_28, 2) AS avg_28,
+  ROUND(AVG(close_price) OVER w_60, 2) AS avg_60,
+  ROUND(AVG(close_price) OVER w_150, 2) AS avg_150,
+  -- Standard Deviation
+  ROUND(STDDEV(close_price) OVER w_14, 2) AS std_14,
+  ROUND(STDDEV(close_price) OVER w_28, 2) AS std_28,
+  ROUND(STDDEV(close_price) OVER w_60, 2) AS std_60,
+  ROUND(STDDEV(close_price) OVER w_150, 2) AS std_150
+FROM updated_daily_btc
+WINDOW
+  w_14 AS (ORDER BY market_date RANGE BETWEEN '14 DAYS' PRECEDING AND '1 DAY' PRECEDING),
+  w_28 AS (ORDER BY market_date RANGE BETWEEN '28 DAYS' PRECEDING AND '1 DAY' PRECEDING),
+  w_60 AS (ORDER BY market_date RANGE BETWEEN '60 DAYS' PRECEDING AND '1 DAY' PRECEDING),
+  w_150 AS (ORDER BY market_date RANGE BETWEEN '150 DAYS' PRECEDING AND '1 DAY' PRECEDING)
+)
+
+SELECT
+  market_date,
+  close_price,
+  CASE
+    WHEN close_price BETWEEN
+      (avg_14 - 2 * std_14) AND (avg_14 + 2 * std_14)
+        THEN 0
+    ELSE 1
+  END AS outlier_14,
+  CASE
+    WHEN close_price BETWEEN
+      (avg_28 - 2 * std_28) AND (avg_28 + 2 * std_28)
+        THEN 0
+    ELSE 1
+  END AS outlier_28,
+  CASE
+    WHEN close_price BETWEEN
+      (avg_60 - 2 * std_60) AND (avg_60 + 2 * std_60)
+        THEN 0
+    ELSE 1
+  END AS outlier_60,
+  CASE
+    WHEN close_price BETWEEN
+      (avg_150 - 2 * std_150) AND (avg_150 + 2 * std_150)
+        THEN 0
+    ELSE 1
+  END AS outlier_150
+FROM base_data
+ORDER BY market_date DESC
+LIMIT 10;
+```
+
+*Output:*
+
+| market_date | close_price | outlier_14 | outlier_28 | outlier_60 | outlier_150 |
+|-------------|-------------|------------|------------|------------|-------------|
+| 2021-02-24  | 50460.23    | 0          | 0          | 0          | 1           |
+| 2021-02-23  | 48824.43    | 0          | 0          | 0          | 0           |
+| 2021-02-22  | 54207.32    | 0          | 0          | 1          | 1           |
+| 2021-02-21  | 57539.95    | 1          | 0          | 1          | 1           |
+| 2021-02-20  | 56099.52    | 0          | 0          | 1          | 1           |
+| 2021-02-19  | 55888.13    | 1          | 1          | 1          | 1           |
+| 2021-02-18  | 51679.80    | 0          | 0          | 1          | 1           |
+| 2021-02-17  | 52149.01    | 0          | 1          | 1          | 1           |
+| 2021-02-16  | 49199.87    | 0          | 0          | 1          | 1           |
+| 2021-02-15  | 47945.06    | 0          | 0          | 1          | 1           |
+
+### 7.3 Weighted Moving Average
+
+As we have previously calculated the simple average for 14, 28, etc days. But the problem here is we are assigning the same weight to a value that was 150 days ago and 1 day ago which might make the average values for something like bitcoin skewed. In order to improve that, we can assign different weights to price values based on their date.
+
+Imagine that we were tasked by a demanding Cryptocurrency trading client who required custom weights to be applied using the following combination of simple moving averages:
+
+| Time Period | Weight Factor |
+|-------------|---------------|
+| 1-14 days   | 0.5           |
+| 15-28 days  | 0.3           |
+| 29-60 days  | 0.15          |
+| 61-150 days | 0.05          |
+
+```sql
+WITH base_data AS (
+SELECT
+  market_date,
+  ROUND(close_price, 2) AS close_price,
+  -- Averages
+  ROUND(AVG(close_price) OVER w_1_to_14, 2) AS avg_1_to_14,
+  ROUND(AVG(close_price) OVER w_15_to_28, 2) AS avg_15_to_28,
+  ROUND(AVG(close_price) OVER w_29_to_60, 2) AS avg_29_to_60,
+  ROUND(AVG(close_price) OVER w_61_to_150, 2) AS avg_61_to_150
+FROM updated_daily_btc
+WINDOW
+  w_1_to_14 AS (ORDER BY market_date RANGE BETWEEN '14 DAYS' PRECEDING AND '1 DAY' PRECEDING),
+  w_15_to_28 AS (ORDER BY market_date RANGE BETWEEN '28 DAYS' PRECEDING AND '1 DAY' PRECEDING),
+  w_29_to_60 AS (ORDER BY market_date RANGE BETWEEN '60 DAYS' PRECEDING AND '1 DAY' PRECEDING),
+  w_61_to_150 AS (ORDER BY market_date RANGE BETWEEN '150 DAYS' PRECEDING AND '1 DAY' PRECEDING)
+)
+
+SELECT
+  market_date,
+  close_price,
+  0.5 * avg_1_to_14 + 0.3 * avg_15_to_28 + 0.15 * avg_29_to_60 + 0.05 * avg_61_to_150 AS weighted_avg
+FROM base_data
+ORDER BY market_date DESC
+LIMIT 10;
+```
+
+*Output:*
+
+| market_date | close_price | weighted_avg |
+|-------------|-------------|--------------|
+| 2021-02-24  | 50460.23    | 45481.4125   |
+| 2021-02-23  | 48824.43    | 45150.4730   |
+| 2021-02-22  | 54207.32    | 44539.6800   |
+| 2021-02-21  | 57539.95    | 43502.2110   |
+| 2021-02-20  | 56099.52    | 42547.4410   |
+| 2021-02-19  | 55888.13    | 41570.7405   |
+| 2021-02-18  | 51679.80    | 40736.1385   |
+| 2021-02-17  | 52149.01    | 39949.6585   |
+| 2021-02-16  | 49199.87    | 39242.2040   |
+| 2021-02-15  | 47945.06    | 38531.2205   |
+
