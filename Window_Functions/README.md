@@ -1304,3 +1304,169 @@ FROM frame_example;
 
 </details>
 
+## 7. Window function Examples
+
+Lets go back to our bitcoin dataset and use window functions to solve for the following questions.
+
+1. What is the average daily volume of Bitcoin for the last 7 days?
+2. Create a 1/0 flag if a specific day is higher than the last 7 days volume average
+3. What is the percentage of weeks (starting on a Monday) where there are 4 or more days with increased volume?
+4. How many high volume weeks are there broken down by year for the weeks with 5-7 days above the 7 day volume average  excluding 2021?
+
+> What is the average daily volume of Bitcoin for the last 7 days?
+
+> Create a 1/0 flag if a specific day is higher than the last 7 days volume average
+
+We will solve the above questions 1 & 2 from a single query.
+
+```sql
+WITH window_calculations AS (
+SELECT
+  market_date,
+  volume,
+  AVG(volume) OVER (
+    ORDER BY market_date
+    RANGE BETWEEN '7 DAYS' PRECEDING and '1 DAY' PRECEDING
+  ) AS past_weekly_avg_volume
+FROM updated_daily_btc
+)
+
+SELECT
+  market_date,
+  volume,
+  CASE
+    WHEN volume > past_weekly_avg_volume THEN 1
+    ELSE 0
+    END AS volume_flag
+FROM window_calculations
+ORDER BY market_date DESC
+LIMIT 10;
+```
+
+*Output:*
+
+| market_date | volume       | volume_flag |
+|-------------|--------------|-------------|
+| 2021-02-24  | 88364793856  | 1           |
+| 2021-02-23  | 106102492824 | 1           |
+| 2021-02-22  | 92052420332  | 1           |
+| 2021-02-21  | 51897585191  | 0           |
+| 2021-02-20  | 68145460026  | 0           |
+| 2021-02-19  | 63495496918  | 0           |
+| 2021-02-18  | 52054723579  | 0           |
+| 2021-02-17  | 80820545404  | 1           |
+| 2021-02-16  | 77049582886  | 0           |
+| 2021-02-15  | 77069903166  | 0           |
+
+> What is the percentage of weeks (starting on a Monday) where there are 4 or more days with increased volume?
+
+```sql
+WITH window_calculations AS (
+  SELECT
+    market_date,
+    volume,
+    AVG(volume) OVER (
+      ORDER BY market_date
+      RANGE BETWEEN '7 DAYS' PRECEDING and '1 DAY' PRECEDING
+    ) AS past_weekly_avg_volume
+  FROM updated_daily_btc
+),
+-- generate the date
+date_calculations AS (
+  SELECT
+    market_date,
+    DATE_TRUNC('week', market_date)::DATE AS start_of_week,
+    volume,
+    CASE
+      WHEN volume > past_weekly_avg_volume THEN 1
+      ELSE 0
+      END AS volume_flag
+  FROM window_calculations
+),
+-- aggregate the metrics and calculate a percentage
+aggregated_weeks AS (
+  SELECT
+    start_of_week,
+    SUM(volume_flag) AS weekly_high_volume_days
+  FROM date_calculations
+  GROUP BY 1
+)
+-- finally calculate the percentage
+SELECT
+  weekly_high_volume_days,
+  ROUND(100 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS percentage_of_weeks
+FROM aggregated_weeks
+GROUP BY 1
+ORDER BY 1;
+```
+*Output:*
+
+| weekly_high_volume_days | percentage_of_weeks |
+|-------------------------|---------------------|
+| 0                       | 6.23                |
+| 1                       | 13.65               |
+| 2                       | 20.47               |
+| 3                       | 20.47               |
+| 4                       | 18.99               |
+| 5                       | 11.87               |
+| 6                       | 6.23                |
+| 7                       | 2.08                |
+
+> How many high volume weeks are there broken down by year for the weeks with 5-7 days above the 7 day volume average  excluding 2021?
+
+```sql
+WITH window_calculations AS (
+  SELECT
+    market_date,
+    volume,
+    AVG(volume) OVER (
+      ORDER BY market_date
+      RANGE BETWEEN '7 DAYS' PRECEDING and '1 DAY' PRECEDING
+    ) AS past_weekly_avg_volume
+  FROM updated_daily_btc
+),
+-- generate the date
+date_calculations AS (
+  SELECT
+    market_date,
+    DATE_TRUNC('week', market_date)::DATE AS start_of_week,
+    volume,
+    CASE
+      WHEN volume > past_weekly_avg_volume THEN 1
+      ELSE 0
+      END AS volume_flag
+  FROM window_calculations
+),
+-- aggregate the metrics and calculate a percentage
+aggregated_weeks AS (
+  SELECT
+    start_of_week,
+    SUM(volume_flag) AS weekly_high_volume_days
+  FROM date_calculations
+  GROUP BY 1
+)
+-- finally calculate the percentage by year
+SELECT
+  -- here we demonstrate how to use EXTRACT as an alternative to DATE_TRUNC
+  EXTRACT(YEAR FROM start_of_week) AS market_year,
+  COUNT(*) AS high_volume_weeks,
+  ROUND(100 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS percentage_of_total
+FROM aggregated_weeks
+WHERE weekly_high_volume_days >= 5
+AND start_of_week < '2021-01-01'::DATE
+GROUP BY 1
+ORDER BY 1;
+```
+
+*Output:*
+
+| market_year | high_volume_weeks | percentage_of_total |
+|-------------|-------------------|---------------------|
+| 2014        | 2                 | 2.99                |
+| 2015        | 3                 | 4.48                |
+| 2016        | 13                | 19.40               |
+| 2017        | 17                | 25.37               |
+| 2018        | 8                 | 11.94               |
+| 2019        | 11                | 16.42               |
+| 2020        | 13                | 19.40               |
+
