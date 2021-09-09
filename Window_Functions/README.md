@@ -1091,6 +1091,12 @@ FROM frame_example;
 
 As mentioned above, there are three different window frame modes that we can use with PostgreSQL viz ```RANGE```, ```ROWS``` & ```GROUPS```.
 
+- ```ROWS```: The row mode instructs the database to treat each input row separately as individual entities.
+- ```GROUPS```: Group mode is made exactly for duplicates. While sorting, group mode groups all rows with same 
+                value as one entity.
+- ```RANGE```: RANGE mode is different from the previous two, because it doesn’t tie the rows together in any way. It
+               instructs the database to work on a given range of values instead. Postgres imposes a requirement, that in this mode you can put only one column in the ORDER BY clause.
+
 ```sql
 SELECT
   val,
@@ -1127,4 +1133,174 @@ FROM frame_example;
 | 20  | 68     | 48    | 68      | 7           | 5           |
 | 20  | 68     | 68    | 68      | 8           | 5           |
 | 25  | 93     | 93    | 93      | 9           | 6           |
+
+#### 6.2.1 Unbounded Preceding and Current Row
+
+Having a start frame of ```UNBOUNDED PRECEDING``` means to include records from the start of the window frame.
+
+And, An end frame of ```CURRENT ROW``` means to only include up to the current record for the window function calculation.
+
+By default the frame is given as below:
+
+```FRAME MODE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW```
+
+This can be changed. A few other options that can be used are:
+
+- ```UNBOUNDED PRECEDING```: (possible only in frame_start) start with the first row of the partition
+- ```UNBOUNDED FOLLOWING```: (possible only as a frame_end) end with the last row of the partition
+- ```OFFSET PRECEDING```: start/end with a given number of rows before the current row
+- ```OFFSET FOLLOWING```: start/end with a given number of rows after the current row
+- ```CURRENT ROW```: start/end with the current row
+
+### 6.2.2 Frame Exclusion
+
+Frame exclusion allows you to exclude some rows from the window frame, even if they are included in the frame_start & frame_end options. The various options that can be used are:
+
+- ```EXCLUDE CURRENT ROW```: exclude the current row
+- ```EXCLUDE GROUP```: exclude the current row and all peer rows, i.e rows that have the same value in the sorting column
+- ```EXCLUDE TIES```: exclude all peer rows, but not the current row
+- ```EXCLUDE NO OTHERS```: exclude nothing. This is the option that is there by default
+
+Lets try out all the above options with an example using ```RANGE``` window function.
+
+```sql
+SELECT
+  val,
+  SUM(val) OVER (
+    ORDER BY val
+    RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS default,
+  SUM(val) OVER (
+    ORDER BY val
+    RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    EXCLUDE CURRENT ROW
+  ) AS _exclude_current_row,
+  SUM(val) OVER (
+    ORDER BY val
+    RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    EXCLUDE TIES
+  ) AS _exclude_ties,
+  SUM(val) OVER (
+    ORDER BY val
+    RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    EXCLUDE GROUP
+  ) AS _exclude_group,
+  _row_number,
+  _dense_rank
+FROM frame_example;
+```
+
+<details>
+<summary>Click here to view output</summary>
+<br>
+
+| val | default | _exclude_current_row | _exclude_ties | _exclude_group | _row_number | _dense_rank |
+|-----|---------|----------------------|---------------|----------------|-------------|-------------|
+| 1   | 2       | 1                    | 1             | null           | 1           | 1           |
+| 1   | 2       | 1                    | 1             | null           | 2           | 1           |
+| 2   | 4       | 2                    | 4             | 2              | 3           | 2           |
+| 6   | 10      | 4                    | 10            | 4              | 4           | 3           |
+| 9   | 28      | 19                   | 19            | 10             | 5           | 4           |
+| 9   | 28      | 19                   | 19            | 10             | 6           | 4           |
+| 20  | 68      | 48                   | 48            | 28             | 7           | 5           |
+| 20  | 68      | 48                   | 48            | 28             | 8           | 5           |
+| 25  | 93      | 68                   | 93            | 68             | 9           | 6           |
+
+</details>
+
+Now, lets also try this same for the ```ROWS``` and ```GROUP``` function.
+
+For ```ROWS```:
+
+```sql
+SELECT
+  val,
+  SUM(val) OVER (
+    ORDER BY val
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS default,
+  SUM(val) OVER (
+    ORDER BY val
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    EXCLUDE CURRENT ROW
+  ) AS _exclude_current_row,
+  SUM(val) OVER (
+    ORDER BY val
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    EXCLUDE TIES
+  ) AS _exclude_ties,
+  SUM(val) OVER (
+    ORDER BY val
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    EXCLUDE GROUP
+  ) AS _exclude_group,
+  _row_number,
+  _dense_rank
+FROM frame_example;
+```
+
+<details>
+<summary>Click here to view output</summary>
+<br>
+
+| val | default | _exclude_current_row | _exclude_ties | _exclude_group | _row_number | _dense_rank |
+|-----|---------|----------------------|---------------|----------------|-------------|-------------|
+| 1   | 1       | null                 | 1             | null           | 1           | 1           |
+| 1   | 2       | 1                    | 1             | null           | 2           | 1           |
+| 2   | 4       | 2                    | 4             | 2              | 3           | 2           |
+| 6   | 10      | 4                    | 10            | 4              | 4           | 3           |
+| 9   | 19      | 10                   | 19            | 10             | 5           | 4           |
+| 9   | 28      | 19                   | 19            | 10             | 6           | 4           |
+| 20  | 48      | 28                   | 48            | 28             | 7           | 5           |
+| 20  | 68      | 48                   | 48            | 28             | 8           | 5           |
+| 25  | 93      | 68                   | 93            | 68             | 9           | 6           |
+
+</details>
+
+For ```GROUP```:
+
+```sql
+SELECT
+  val,
+  SUM(val) OVER (
+    ORDER BY val
+    GROUPS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS default,
+  SUM(val) OVER (
+    ORDER BY val
+    GROUPS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    EXCLUDE CURRENT ROW
+  ) AS _exclude_current_row,
+  SUM(val) OVER (
+    ORDER BY val
+    GROUPS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    EXCLUDE TIES
+  ) AS _exclude_ties,
+  SUM(val) OVER (
+    ORDER BY val
+    GROUPS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    EXCLUDE GROUP
+  ) AS _exclude_groups,
+  _row_number,
+  _dense_rank
+FROM frame_example;
+```
+
+<details>
+<summary>Click here to view output</summary>
+<br>
+
+| val | default | _exclude_current_row | _exclude_ties | _exclude_groups | _row_number | _dense_rank |
+|-----|---------|----------------------|---------------|-----------------|-------------|-------------|
+| 1   | 2       | 1                    | 1             | null            | 1           | 1           |
+| 1   | 2       | 1                    | 1             | null            | 2           | 1           |
+| 2   | 4       | 2                    | 4             | 2               | 3           | 2           |
+| 6   | 10      | 4                    | 10            | 4               | 4           | 3           |
+| 9   | 28      | 19                   | 19            | 10              | 5           | 4           |
+| 9   | 28      | 19                   | 19            | 10              | 6           | 4           |
+| 20  | 68      | 48                   | 48            | 28              | 7           | 5           |
+| 20  | 68      | 48                   | 48            | 28              | 8           | 5           |
+| 25  | 93      | 68                   | 93            | 68              | 9           | 6           |
+
+</details>
 
