@@ -1306,6 +1306,8 @@ FROM frame_example;
 
 ## 7. Window function Examples
 
+### 7.1 Weekly volume comparison
+
 Lets go back to our bitcoin dataset and use window functions to solve for the following questions.
 
 1. What is the average daily volume of Bitcoin for the last 7 days?
@@ -1469,4 +1471,66 @@ ORDER BY 1;
 | 2018        | 8                 | 11.94               |
 | 2019        | 11                | 16.42               |
 | 2020        | 13                | 19.40               |
+
+### 7.2 Moving Averages
+
+For the following time windows: 14, 28, 60, 150 days - calculate the following metrics for the ```close_price``` column:
+
+1. Moving average
+2. Moving standard deviation
+3. The maximum and minimum values
+
+```sql
+SELECT
+  market_date,
+  -- Averages
+  ROUND(AVG(close_price) OVER w_14, 2) AS avg_14,
+  ROUND(AVG(close_price) OVER w_28, 2) AS avg_28,
+  ROUND(AVG(close_price) OVER w_60, 2) AS avg_60,
+  ROUND(AVG(close_price) OVER w_150, 2) AS avg_150,
+  -- Standard Deviation
+  ROUND(STDDEV(close_price) OVER w_14, 2) AS std_14,
+  ROUND(STDDEV(close_price) OVER w_28, 2) AS std_28,
+  ROUND(STDDEV(close_price) OVER w_60, 2) AS std_60,
+  ROUND(STDDEV(close_price) OVER w_150, 2) AS std_150,
+  -- Max 
+  ROUND(MAX(close_price) OVER w_14) AS max_14,
+  ROUND(MAX(close_price) OVER w_28) AS max_28,
+  ROUND(MAX(close_price) OVER w_60) AS max_60,
+  ROUND(MAX(close_price) OVER w_150) AS max_150,
+  -- Min
+  ROUND(MIN(close_price) OVER w_14) AS min_14,
+  ROUND(MIN(close_price) OVER w_28) AS min_28,
+  ROUND(MIN(close_price) OVER w_60) AS min_60,
+  ROUND(MIN(close_price) OVER w_150) AS min_150
+FROM updated_daily_btc
+WINDOW
+  w_14 AS (ORDER BY market_date RANGE BETWEEN '14 DAYS' PRECEDING AND '1 DAY' PRECEDING),
+  w_28 AS (ORDER BY market_date RANGE BETWEEN '28 DAYS' PRECEDING AND '1 DAY' PRECEDING),
+  w_60 AS (ORDER BY market_date RANGE BETWEEN '60 DAYS' PRECEDING AND '1 DAY' PRECEDING),
+  w_150 AS (ORDER BY market_date RANGE BETWEEN '150 DAYS' PRECEDING AND '1 DAY' PRECEDING)
+ORDER BY market_date DESC
+LIMIT 10;
+```
+
+<details>
+<summary>Click to view output</summary>
+<br>
+
+| market_date | avg_14   | avg_28   | avg_60   | avg_150  | std_14  | std_28  | std_60  | std_150  | max_14 | max_28 | max_60 | max_150 | min_14 | min_28 | min_60 | min_150 |
+|-------------|----------|----------|----------|----------|---------|---------|---------|----------|--------|--------|--------|---------|--------|--------|--------|---------|
+| 2021-02-24  | 50692.02 | 43782.42 | 38381.99 | 24867.56 | 3920.87 | 8248.24 | 8118.44 | 12581.79 | 57540  | 57540  | 57540  | 57540   | 44918  | 30433  | 26272  | 10565   |
+| 2021-02-23  | 50524.64 | 43201.89 | 37979.32 | 24613.76 | 4054.47 | 8449.78 | 8190.56 | 12478.84 | 57540  | 57540  | 57540  | 57540   | 44918  | 30433  | 24665  | 10565   |
+| 2021-02-22  | 49952.43 | 42421.86 | 37471.47 | 24323.73 | 4060.04 | 8404.19 | 8111.59 | 12290.56 | 57540  | 57540  | 57540  | 57540   | 44918  | 30433  | 23736  | 10565   |
+| 2021-02-21  | 48621.26 | 41520.06 | 36899.83 | 24011.77 | 4420.16 | 8069.97 | 7878.55 | 12032.98 | 56100  | 56100  | 56100  | 56100   | 38903  | 30433  | 23241  | 10565   |
+| 2021-02-20  | 47418.86 | 40661.77 | 36361.22 | 23705.94 | 4517.89 | 7732.86 | 7644.92 | 11792.53 | 55888  | 55888  | 55888  | 55888   | 38903  | 30433  | 23241  | 10226   |
+| 2021-02-19  | 46151.45 | 39844.55 | 35809.80 | 23403.61 | 4447.54 | 7258.69 | 7401.92 | 11540.55 | 52149  | 52149  | 52149  | 52149   | 38144  | 30433  | 22803  | 10226   |
+| 2021-02-18  | 45097.61 | 39099.76 | 35339.76 | 23128.83 | 4772.88 | 7066.69 | 7271.37 | 11351.93 | 52149  | 52149  | 52149  | 52149   | 36926  | 30433  | 22803  | 10226   |
+| 2021-02-17  | 44049.26 | 38506.86 | 34868.44 | 22854.09 | 4716.45 | 6613.17 | 7077.27 | 11141.61 | 49200  | 49200  | 49200  | 49200   | 36926  | 30433  | 22803  | 10226   |
+| 2021-02-16  | 43071.43 | 38037.92 | 34434.07 | 22600.05 | 4978.29 | 6284.20 | 6981.90 | 10969.97 | 48717  | 48717  | 48717  | 48717   | 35510  | 30433  | 22803  | 10226   |
+| 2021-02-15  | 42042.29 | 37633.82 | 34015.07 | 22353.38 | 5367.32 | 5979.96 | 6911.33 | 10811.09 | 48717  | 48717  | 48717  | 48717   | 33537  | 30433  | 22803  | 10226   |
+
+</details>
+
+### 7.3 Statistical Analysis
 
