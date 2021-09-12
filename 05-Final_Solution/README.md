@@ -229,6 +229,8 @@ ORDER BY category_name;
 
 ### 5.1.6 Top Category Percentile
 
+Here, we compare each customers top category ```rental_count``` to all the other customers. In short, we calculate what percentile the customer fits in for their top category.
+
 ```sql
 DROP TABLE IF EXISTS top_category_percentile;
 CREATE TEMP TABLE top_category_percentile AS (
@@ -279,5 +281,82 @@ LIMIT 5;
 | 3           | Action        | 4            | 4          |
 | 4           | Horror        | 3            | 8          |
 | 5           | Classics      | 7            | 1          |
+
+</details>
+
+### 5.1.7 First Category Insights
+
+For the top category, we require ```average_comparison``` and ```percentile``` for each customer. Lets compile both of these requirements into a single table.
+
+```sql
+DROP TABLE IF EXISTS first_category_insights;
+CREATE TEMP TABLE first_category_insights AS (
+SELECT
+  t1.customer_id,
+  t1.category_name,
+  t1.rental_count,
+  t1.rental_count - t2.category_count AS average_comparison,
+  t1.percentile
+FROM top_category_percentile AS t1
+LEFT JOIN average_category_count AS t2
+  ON t1.category_name = t2.category_name
+);
+
+--Display sample outputs from the above table
+SELECT *
+FROM first_category_insights
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | category_name | rental_count | average_comparison | percentile |
+|-------------|---------------|--------------|--------------------|------------|
+| 323         | Action        | 7            | 5                  | 1          |
+| 506         | Action        | 7            | 5                  | 1          |
+| 151         | Action        | 6            | 4                  | 1          |
+| 410         | Action        | 6            | 4                  | 1          |
+| 126         | Action        | 6            | 4                  | 1          |
+
+</details>
+
+### 5.1.8 Second Category Insights
+
+And for the second category, we need to calculate its ```total_percentage``` that it contains when compared to a customers total rental watching history.
+
+```sql
+DROP TABLE IF EXISTS second_category_insights;
+CREATE TEMP TABLE second_category_insights AS (
+SELECT
+  t1.customer_id,
+  t1.category_name,
+  t1.rental_count,
+  ROUND(
+    100 * t1.rental_count::NUMERIC / t2.total_count
+  ) AS total_percentage
+FROM top_categories AS t1
+LEFT JOIN total_counts AS t2
+  ON t1.customer_id = t2.customer_id
+WHERE category_rank = 2
+);
+
+SELECT *
+FROM second_category_insights
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | category_name | rental_count | total_percentage |
+|-------------|---------------|--------------|------------------|
+| 184         | Drama         | 3            | 13               |
+| 87          | Sci-Fi        | 3            | 10               |
+| 477         | Travel        | 3            | 14               |
+| 273         | New           | 4            | 11               |
+| 550         | Drama         | 4            | 13               |
 
 </details>
