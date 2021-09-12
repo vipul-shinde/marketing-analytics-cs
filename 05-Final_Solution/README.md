@@ -98,3 +98,36 @@ ORDER BY
 
 </details>
 
+### 5.1.3 Total Counts
+
+Since, we later need to calculate the percentage of each category it counts to the customers viewing history, lets create a ```total_counts``` table from the above table.
+
+```sql
+DROP TABLE IF EXISTS total_counts;
+CREATE TEMP TABLE total_counts AS(
+SELECT
+  customer_id,
+  SUM(rental_count) AS total_count
+FROM category_counts
+GROUP BY customer_id
+);
+
+SELECT *
+FROM total_counts
+ORDER BY customer_id
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | total_count |
+|-------------|-------------|
+| 1           | 32          |
+| 2           | 27          |
+| 3           | 26          |
+| 4           | 22          |
+| 5           | 38          |
+
+</details>
