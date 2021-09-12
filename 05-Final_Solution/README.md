@@ -770,3 +770,130 @@ WHERE customer_id = 1;
 | 1           | VAL        | BOLGER    | 6            | METROPOLIS COMA | 572     | 37       | 3         |
 
 </details>
+
+## 5.5 Key Table Outputs
+
+Let's identify our main table outputs here which are the important ones to fulfill our business requirements.
+
+### 5.5.1 Customer Level Insights
+
+> 1. ```first_category_insights```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+```sql
+SELECT *
+FROM first_category_insights
+LIMIT 5;
+```
+
+*Output:*
+
+| customer_id | category_name | rental_count | average_comparison | percentile |
+|-------------|---------------|--------------|--------------------|------------|
+| 323         | Action        | 7            | 5                  | 1          |
+| 506         | Action        | 7            | 5                  | 1          |
+| 151         | Action        | 6            | 4                  | 1          |
+| 410         | Action        | 6            | 4                  | 1          |
+| 126         | Action        | 6            | 4                  | 1          |
+
+</details>
+
+> 2. ```second_category_insights```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+```sql
+SELECT *
+FROM second_category_insights
+LIMIT 5;
+```
+
+*Output:*
+
+| customer_id | category_name | rental_count | total_percentage |
+|-------------|---------------|--------------|------------------|
+| 184         | Drama         | 3            | 13               |
+| 87          | Sci-Fi        | 3            | 10               |
+| 477         | Travel        | 3            | 14               |
+| 273         | New           | 4            | 11               |
+| 550         | Drama         | 4            | 13               |
+
+</details>
+
+> 3. ```top_actor_counts```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+```sql
+SELECT *
+FROM top_actor_counts
+LIMIT 5;
+```
+
+*Output:*
+
+| customer_id | actor_id | first_name | last_name | rental_count |
+|-------------|----------|------------|-----------|--------------|
+| 1           | 37       | VAL        | BOLGER    | 6            |
+| 2           | 107      | GINA       | DEGENERES | 5            |
+| 3           | 150      | JAYNE      | NOLTE     | 4            |
+| 4           | 102      | WALTER     | TORN      | 4            |
+| 5           | 12       | KARL       | BERRY     | 4            |
+
+</details>
+
+### 5.5.2 Recommendations
+
+> 1. ```category_recommendations```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+```sql
+SELECT *
+FROM category_recommendations
+WHERE customer_id = 3;
+```
+
+*Output:*
+
+| customer_id | category_name | category_rank | film_id | title               | rental_count | reco_rank |
+|-------------|---------------|---------------|---------|---------------------|--------------|-----------|
+| 3           | Action        | 1             | 748     | RUGRATS SHAKESPEARE | 30           | 1         |
+| 3           | Action        | 1             | 869     | SUSPECTS QUILLS     | 30           | 2         |
+| 3           | Action        | 1             | 395     | HANDICAP BOONDOCK   | 28           | 3         |
+| 3           | Sci-Fi        | 2             | 369     | GOODFELLAS SALUTE   | 31           | 1         |
+| 3           | Sci-Fi        | 2             | 285     | ENGLISH BULWORTH    | 30           | 2         |
+| 3           | Sci-Fi        | 2             | 374     | GRAFFITI LOVE       | 30           | 3         |
+
+</details>
+
+> 2. ```actor_recommendations```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+```sql
+SELECT *
+FROM actor_recommendations
+WHERE customer_id = 3;
+```
+
+*Output:*
+
+| customer_id | first_name | last_name | rental_count | title                | film_id | actor_id | reco_rank |
+|-------------|------------|-----------|--------------|----------------------|---------|----------|-----------|
+| 3           | JAYNE      | NOLTE     | 4            | SWEETHEARTS SUSPECTS | 873     | 150      | 1         |
+| 3           | JAYNE      | NOLTE     | 4            | DANCING FEVER        | 206     | 150      | 2         |
+| 3           | JAYNE      | NOLTE     | 4            | INVASION CYCLONE     | 468     | 150      | 3         |
+
+</details>
