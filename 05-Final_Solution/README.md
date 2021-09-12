@@ -131,3 +131,51 @@ LIMIT 5;
 | 5           | 38          |
 
 </details>
+
+### 5.1.4 Top Categories
+
+Now, lets filter out the top 2 categories for each customer based on their rental_count and to avoid any ties, order the categories by its name and the ```latest_rental_date``` in that category.
+
+```sql
+DROP TABLE IF EXISTS top_categories;
+CREATE TEMP TABLE top_categories AS (
+WITH ranked_cte AS (
+  SELECT
+    customer_id,
+    category_name,
+    rental_count,
+    DENSE_RANK() OVER (
+      PARTITION BY customer_id
+      ORDER BY
+        rental_count DESC,
+        latest_rental_date DESC,
+        category_name
+    ) AS category_rank
+  FROM category_counts
+)
+
+SELECT *
+FROM ranked_cte
+WHERE category_rank <= 2
+);
+
+--Display sample outputs from the above table
+SELECT *
+FROM top_categories
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | category_name | rental_count | category_rank |
+|-------------|---------------|--------------|---------------|
+| 1           | Classics      | 6            | 1             |
+| 1           | Comedy        | 5            | 2             |
+| 2           | Sports        | 5            | 1             |
+| 2           | Classics      | 4            | 2             |
+| 3           | Action        | 4            | 1             |
+
+</details>
+
