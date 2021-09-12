@@ -631,7 +631,7 @@ LIMIT 5;
 
 ### 5.4.1 Actor Film Counts
 
-We first calculate the actor-film rental counts
+We first calculate the actor-film rental counts which will help us in recommending the films to the customer later.
 
 ```sql
 DROP TABLE IF EXISTS actor_film_counts;
@@ -714,6 +714,8 @@ LIMIT 5;
 </details>
 
 ### 5.4.3 Final Actor Recommendations
+
+Finally, we create a table containing all the film recommendations for the customer based on their most watched actor from the ```top_actor_counts``` table. We will use the ```ANTI JOIN``` to make sure to exclude the films which the customer has already watched and we have already recommended in the top 2 category section.
 
 ```sql
 DROP TABLE IF EXISTS actor_recommendations;
