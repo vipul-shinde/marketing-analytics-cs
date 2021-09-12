@@ -179,3 +179,47 @@ LIMIT 5;
 
 </details>
 
+### 5.1.5 Average Category Counts
+
+Here, we calculate the average rental count for each category. This will help us in filling one of the requirements.
+
+```sql
+DROP TABLE IF EXISTS average_category_count;
+CREATE TEMP TABLE average_category_count AS (
+SELECT
+  category_name,
+  FLOOR(AVG(rental_count)) AS category_count
+FROM category_counts
+GROUP BY category_name
+);
+
+SELECT *
+FROM average_category_count
+ORDER BY category_name;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| category_name | category_count |
+|---------------|----------------|
+| Action        | 2              |
+| Animation     | 2              |
+| Children      | 1              |
+| Classics      | 2              |
+| Comedy        | 1              |
+| Documentary   | 2              |
+| Drama         | 2              |
+| Family        | 2              |
+| Foreign       | 2              |
+| Games         | 2              |
+| Horror        | 1              |
+| Music         | 1              |
+| New           | 2              |
+| Sci-Fi        | 2              |
+| Sports        | 2              |
+| Travel        | 1              |
+
+</details>
+
