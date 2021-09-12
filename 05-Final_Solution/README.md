@@ -495,9 +495,9 @@ WHERE customer_id = 1;
 
 </details>
 
-## 5.4 Actor Insights
+## 5.3 Actor Insights
 
-### 5.4.1 Actor Joint Table
+### 5.3.1 Actor Joint Table
 
 Here, we create a similar base table as ```complete_joint_dataset``` but this time we join the tables ```film_actor``` and ```actor``` along with the ```rental``` table. This will give us a list of all the customers rental along with all the actors that starred in it.
 
@@ -561,7 +561,7 @@ FROM actor_joint_dataset;
 |-----------------|------------------|----------------|-----------------|--------------------|
 | 87980           | 16004            | 955            | 200             | 599                |
 
-### 5.4.2 Top Actor Counts
+### 5.3.2 Top Actor Counts
 
 Now, based on the ```actor_joint_dataset```, we calculate the count of the total number of actors film a customer has watched and then select the top actor based on the ```DENSE_RANK()``` window function value. This will take care of our first actor insights requirement for the email template.
 
@@ -624,5 +624,50 @@ LIMIT 5;
 | 3           | 150      | JAYNE      | NOLTE     | 4            |
 | 4           | 102      | WALTER     | TORN      | 4            |
 | 5           | 12       | KARL       | BERRY     | 4            |
+
+</details>
+
+## 5.4 Actor Recommendations
+
+### 5.4.1 Actor Film Counts
+
+```sql
+DROP TABLE IF EXISTS actor_film_counts;
+CREATE TEMP TABLE actor_film_counts AS (
+WITH film_counts AS (
+SELECT
+  film_id,
+  COUNT(DISTINCT rental_id) AS rental_count
+FROM actor_joint_dataset
+GROUP BY film_id
+)
+
+SELECT DISTINCT
+  t1.film_id,
+  t1.actor_id,
+  t1.title,
+  film_counts.rental_count
+FROM actor_joint_dataset AS t1
+LEFT JOIN film_counts
+  ON t1.film_id = film_counts.film_id
+);
+
+--Display sample row outputs from above table
+SELECT *
+FROM actor_film_counts
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| film_id | actor_id | title            | rental_count |
+|---------|----------|------------------|--------------|
+| 1       | 1        | ACADEMY DINOSAUR | 23           |
+| 1       | 10       | ACADEMY DINOSAUR | 23           |
+| 1       | 20       | ACADEMY DINOSAUR | 23           |
+| 1       | 30       | ACADEMY DINOSAUR | 23           |
+| 1       | 40       | ACADEMY DINOSAUR | 23           |
 
 </details>
