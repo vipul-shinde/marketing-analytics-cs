@@ -494,3 +494,51 @@ WHERE customer_id = 1;
 | 1           | Comedy        | 2             | 638     | OPERATION OPERATION | 27           | 3         |
 
 </details>
+
+## 5.4 Actor Insights
+
+### 5.4.1 Actor Joint Table
+
+Here, we create a similar base table as ```complete_joint_dataset``` but this time we join the tables ```film_actor``` and ```actor``` along with the ```rental``` table. This will give us a list of all the customers rental along with all the actors that starred in it.
+
+```sql
+DROP TABLE IF EXISTS actor_joint_dataset;
+CREATE TEMP TABLE actor_joint_dataset AS (
+SELECT 
+  rental.customer_id,
+  rental.rental_id,
+  rental.rental_date,
+  film.film_id,
+  film.title,
+  actor.actor_id,
+  actor.first_name,
+  actor.last_name
+FROM dvd_rentals.rental
+INNER JOIN dvd_rentals.inventory
+  ON rental.inventory_id = inventory.inventory_id
+INNER JOIN dvd_rentals.film
+  ON inventory.film_id = film.film_id
+INNER JOIN dvd_rentals.film_actor
+  ON film.film_id = film_actor.film_id
+INNER JOIN dvd_rentals.actor
+  ON film_actor.actor_id = actor.actor_id
+);
+
+SELECT *
+FROM actor_joint_dataset
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | rental_id | rental_date              | film_id | title           | actor_id | first_name | last_name |
+|-------------|-----------|--------------------------|---------|-----------------|----------|------------|-----------|
+| 130         | 1         | 2005-05-24T22:53:30.000Z | 80      | BLANKET BEVERLY | 200      | THORA      | TEMPLE    |
+| 130         | 1         | 2005-05-24T22:53:30.000Z | 80      | BLANKET BEVERLY | 193      | BURT       | TEMPLE    |
+| 130         | 1         | 2005-05-24T22:53:30.000Z | 80      | BLANKET BEVERLY | 173      | ALAN       | DREYFUSS  |
+| 130         | 1         | 2005-05-24T22:53:30.000Z | 80      | BLANKET BEVERLY | 16       | FRED       | COSTNER   |
+| 459         | 2         | 2005-05-24T22:54:33.000Z | 333     | FREAKY POCUS    | 147      | FAY        | WINSLET   |
+
+</details>
