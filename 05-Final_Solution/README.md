@@ -542,3 +542,87 @@ LIMIT 5;
 | 459         | 2         | 2005-05-24T22:54:33.000Z | 333     | FREAKY POCUS    | 147      | FAY        | WINSLET   |
 
 </details>
+
+Let's also check out the distinct values count for a few columns.
+
+```sql
+SELECT
+  COUNT(*) AS total_row_count,
+  COUNT(DISTINCT rental_id) AS unique_rental_id,
+  COUNT(DISTINCT film_id) AS unique_film_id,
+  COUNT(DISTINCT actor_id) AS unique_actor_id,
+  COUNT(DISTINCT customer_id) AS unique_customer_id
+FROM actor_joint_dataset;
+```
+
+*Output:*
+
+| total_row_count | unique_rental_id | unique_film_id | unique_actor_id | unique_customer_id |
+|-----------------|------------------|----------------|-----------------|--------------------|
+| 87980           | 16004            | 955            | 200             | 599                |
+
+### 5.4.2 Top Actor Counts
+
+Now, based on the ```actor_joint_dataset```, we calculate the count of the total number of actors film a customer has watched and then select the top actor based on the ```DENSE_RANK()``` window function value. This will take care of our first actor insights requirement for the email template.
+
+```sql
+DROP TABLE IF EXISTS top_actor_counts;
+CREATE TEMP TABLE top_actor_counts AS (
+WITH actor_counts AS (
+SELECT 
+  customer_id,
+  actor_id,
+  first_name,
+  last_name,
+  COUNT(*) AS rental_count,
+  MAX(rental_date) AS latest_rental_date
+FROM actor_joint_dataset
+GROUP BY
+  customer_id,
+  actor_id,
+  first_name,
+  last_name
+),
+ranked_actor_cte AS (
+SELECT
+  actor_counts.*,
+  DENSE_RANK() OVER (
+    PARTITION BY customer_id
+    ORDER BY
+      rental_count DESC,
+      latest_rental_date DESC,
+      first_name,
+      last_name
+  ) AS actor_rank
+FROM actor_counts
+)
+
+SELECT
+  customer_id,
+  actor_id,
+  first_name,
+  last_name,
+  rental_count
+FROM ranked_actor_cte
+WHERE actor_rank = 1
+);
+
+--Display a few sample dataset rows
+SELECT *
+FROM top_actor_counts
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | actor_id | first_name | last_name | rental_count |
+|-------------|----------|------------|-----------|--------------|
+| 1           | 37       | VAL        | BOLGER    | 6            |
+| 2           | 107      | GINA       | DEGENERES | 5            |
+| 3           | 150      | JAYNE      | NOLTE     | 4            |
+| 4           | 102      | WALTER     | TORN      | 4            |
+| 5           | 12       | KARL       | BERRY     | 4            |
+
+</details>
