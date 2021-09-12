@@ -458,7 +458,7 @@ SELECT
       film_counts.title
   ) AS reco_rank
 FROM top_categories
-LEFT JOIN film_counts
+INNER JOIN film_counts
   ON top_categories.category_name = film_counts.category_name
 WHERE NOT EXISTS (
   SELECT 1
@@ -710,5 +710,61 @@ LIMIT 5;
 | 596         | 103     |
 | 176         | 121     |
 | 459         | 724     |
+
+</details>
+
+### 5.4.3 Final Actor Recommendations
+
+```sql
+DROP TABLE IF EXISTS actor_recommendations;
+CREATE TEMP TABLE actor_recommendations AS (
+WITH ranked_actor_films_cte AS (
+SELECT
+  top_actor_counts.customer_id,
+  top_actor_counts.first_name,
+  top_actor_counts.last_name,
+  top_actor_counts.rental_count,
+  actor_film_counts.title,
+  actor_film_counts.film_id,
+  actor_film_counts.actor_id,
+  DENSE_RANK() OVER (
+    PARTITION BY 
+      top_actor_counts.customer_id
+    ORDER BY
+      actor_film_counts.rental_count DESC,
+      actor_film_counts.title
+  ) AS reco_rank
+FROM top_actor_counts
+INNER JOIN actor_film_counts
+  ON top_actor_counts.actor_id = actor_film_counts.actor_id
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM actor_film_exclusions
+  WHERE
+    actor_film_exclusions.customer_id = top_actor_counts.customer_id AND
+    actor_film_exclusions.film_id = actor_film_counts.film_id
+  )
+)
+
+SELECT *
+FROM ranked_actor_films_cte
+WHERE reco_rank <= 3
+);
+
+--Display sample output rows for customer_id = 1
+SELECT *
+FROM actor_recommendations
+WHERE customer_id = 1;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | first_name | last_name | rental_count | title           | film_id | actor_id | reco_rank |
+|-------------|------------|-----------|--------------|-----------------|---------|----------|-----------|
+| 1           | VAL        | BOLGER    | 6            | PRIMARY GLASS   | 697     | 37       | 1         |
+| 1           | VAL        | BOLGER    | 6            | ALASKA PHANTOM  | 12      | 37       | 2         |
+| 1           | VAL        | BOLGER    | 6            | METROPOLIS COMA | 572     | 37       | 3         |
 
 </details>
