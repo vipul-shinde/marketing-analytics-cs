@@ -30,6 +30,7 @@ INNER JOIN dvd_rentals.category
   ON film_category.category_id = category.category_id
 );
 
+--Display sample outputs from the above table
 SELECT *
 FROM complete_joint_dataset
 LIMIT 5;
@@ -67,6 +68,7 @@ GROUP BY
   category_name
 );
 
+--Display sample outputs from the above table
 SELECT *
 FROM category_counts
 WHERE customer_id = 1
@@ -112,6 +114,7 @@ FROM category_counts
 GROUP BY customer_id
 );
 
+--Display sample outputs from the above table
 SELECT *
 FROM total_counts
 ORDER BY customer_id
@@ -193,6 +196,7 @@ FROM category_counts
 GROUP BY category_name
 );
 
+--Display sample outputs from the above table
 SELECT *
 FROM average_category_count
 ORDER BY category_name;
@@ -223,3 +227,57 @@ ORDER BY category_name;
 
 </details>
 
+### 5.1.6 Top Category Percentile
+
+```sql
+DROP TABLE IF EXISTS top_category_percentile;
+CREATE TEMP TABLE top_category_percentile AS (
+WITH calculated_cte AS (
+SELECT
+  top_categories.customer_id,
+  top_categories.category_name AS top_category_name,
+  top_categories.rental_count,
+  category_counts.category_name,
+  top_categories.category_rank,
+  PERCENT_RANK() OVER (
+    PARTITION BY category_counts.category_name
+    ORDER BY category_counts.rental_count DESC
+  ) AS raw_percentile_value
+FROM top_categories
+LEFT JOIN category_counts
+  ON top_categories.customer_id = category_counts.customer_id
+)
+
+SELECT
+  customer_id,
+  category_name,
+  rental_count,
+  CASE
+    WHEN ROUND(100 * raw_percentile_value) = 0 THEN 1
+    ELSE ROUND(100 * raw_percentile_value)
+  END AS percentile
+FROM calculated_cte
+WHERE category_rank = 1
+AND top_category_name = category_name
+);
+
+--Display sample outputs from the above table
+SELECT *
+FROM top_category_percentile
+ORDER BY customer_id
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | category_name | rental_count | percentile |
+|-------------|---------------|--------------|------------|
+| 1           | Classics      | 6            | 1          |
+| 2           | Sports        | 5            | 2          |
+| 3           | Action        | 4            | 4          |
+| 4           | Horror        | 3            | 8          |
+| 5           | Classics      | 7            | 1          |
+
+</details>
