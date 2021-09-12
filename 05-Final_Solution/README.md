@@ -631,6 +631,8 @@ LIMIT 5;
 
 ### 5.4.1 Actor Film Counts
 
+We first calculate the actor-film rental counts
+
 ```sql
 DROP TABLE IF EXISTS actor_film_counts;
 CREATE TEMP TABLE actor_film_counts AS (
@@ -669,5 +671,44 @@ LIMIT 5;
 | 1       | 20       | ACADEMY DINOSAUR | 23           |
 | 1       | 30       | ACADEMY DINOSAUR | 23           |
 | 1       | 40       | ACADEMY DINOSAUR | 23           |
+
+</details>
+
+### 5.4.2 Actor Film Exclusions
+
+Now, we will create a table of films that should be excluded while recommending based on the customers most watched actor films. This will be a combination of the films that the customer has already watched along with the films that we have recommended in their top 2 category recommendation sections.
+
+```sql
+DROP TABLE IF EXISTS actor_film_exclusions;
+CREATE TEMP TABLE actor_film_exclusions AS (
+SELECT DISTINCT
+  customer_id,
+  film_id
+FROM complete_joint_dataset
+
+UNION
+
+SELECT DISTINCT
+  customer_id,
+  film_id
+FROM category_recommendations
+);
+
+SELECT *
+FROM actor_film_exclusions
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | film_id |
+|-------------|---------|
+| 493         | 567     |
+| 114         | 789     |
+| 596         | 103     |
+| 176         | 121     |
+| 459         | 724     |
 
 </details>
