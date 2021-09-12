@@ -39,12 +39,62 @@ LIMIT 5;
 <summary>Click to view output.</summary>
 <br>
 
-| customer_id | film_id | title           | category_name | rental_date              |
-|-------------|---------|-----------------|---------------|--------------------------|
-| 130         | 80      | BLANKET BEVERLY | Family        | 2005-05-24T22:53:30.000Z |
-| 459         | 333     | FREAKY POCUS    | Music         | 2005-05-24T22:54:33.000Z |
-| 408         | 373     | GRADUATE LORD   | Children      | 2005-05-24T23:03:39.000Z |
-| 333         | 535     | LOVE SUICIDES   | Horror        | 2005-05-24T23:04:41.000Z |
-| 222         | 450     | IDOLS SNATCHERS | Children      | 2005-05-24T23:05:21.000Z |
+| customer_id | film_id | title           | category_name | rental_date         |
+|-------------|---------|-----------------|---------------|---------------------|
+| 130         | 80      | BLANKET BEVERLY | Family        | 2005-05-24T22:53:30 |
+| 459         | 333     | FREAKY POCUS    | Music         | 2005-05-24T22:54:33 |
+| 408         | 373     | GRADUATE LORD   | Children      | 2005-05-24T23:03:39 |
+| 333         | 535     | LOVE SUICIDES   | Horror        | 2005-05-24T23:04:41 |
+| 222         | 450     | IDOLS SNATCHERS | Children      | 2005-05-24T23:05:21 |
 
 </details>
+
+### 5.1.2 Category Counts
+
+Now, that we have the total dataset table containing records for each customer's rental along with its category, let's calculate the category count for each customer's rental records. Also, lets take a look at the records when ```customer_id = 1```.
+
+```sql
+DROP TABLE IF EXISTS category_counts;
+CREATE TEMP TABLE category_counts AS (
+SELECT
+  customer_id,
+  category_name,
+  COUNT(*) AS rental_count,
+  MAX(rental_date) AS latest_rental_date
+FROM complete_joint_dataset
+GROUP BY 
+  customer_id,
+  category_name
+);
+
+SELECT *
+FROM category_counts
+WHERE customer_id = 1
+ORDER BY
+  rental_count DESC,
+  latest_rental_date DESC;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | category_name | rental_count | latest_rental_date  |
+|-------------|---------------|--------------|---------------------|
+| 1           | Classics      | 6            | 2005-08-19T09:55:16 |
+| 1           | Comedy        | 5            | 2005-08-22T19:41:37 |
+| 1           | Drama         | 4            | 2005-08-18T03:57:29 |
+| 1           | Animation     | 2            | 2005-08-22T20:03:46 |
+| 1           | Sci-Fi        | 2            | 2005-08-21T23:33:57 |
+| 1           | New           | 2            | 2005-08-19T13:56:54 |
+| 1           | Action        | 2            | 2005-08-17T12:37:54 |
+| 1           | Music         | 2            | 2005-07-09T16:38:01 |
+| 1           | Sports        | 2            | 2005-07-08T07:33:56 |
+| 1           | Family        | 1            | 2005-08-02T18:01:38 |
+| 1           | Documentary   | 1            | 2005-08-01T08:51:04 |
+| 1           | Foreign       | 1            | 2005-07-28T16:18:23 |
+| 1           | Travel        | 1            | 2005-07-11T10:13:46 |
+| 1           | Games         | 1            | 2005-07-08T03:17:05 |
+
+</details>
+
