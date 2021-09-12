@@ -360,3 +360,137 @@ LIMIT 5;
 | 550         | Drama         | 4            | 13               |
 
 </details>
+
+## 5.2 Category Recommendations
+
+### 5.2.1 Film Counts
+
+First, we will calculate the total ```rental_count``` which is how many times a particular film has been rented by customers. This will help us in recommending new films to customers which they haven't watched yet.
+
+```sql
+DROP TABLE IF EXISTS film_counts;
+CREATE TEMP TABLE film_counts AS (
+SELECT DISTINCT
+  film_id,
+  title,
+  category_name,
+  COUNT(*) OVER (
+    PARTITION BY film_id
+  ) AS rental_count
+FROM complete_joint_dataset
+);
+
+SELECT *
+FROM film_counts
+ORDER BY rental_count DESC
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| film_id | title               | category_name | rental_count |
+|---------|---------------------|---------------|--------------|
+| 103     | BUCKET BROTHERHOOD  | Travel        | 34           |
+| 738     | ROCKETEER MOTHER    | Foreign       | 33           |
+| 767     | SCALAWAG DUCK       | Music         | 32           |
+| 730     | RIDGEMONT SUBMARINE | New           | 32           |
+| 331     | FORWARD TEMPLE      | Games         | 32           |
+
+</details>
+
+### 5.2.2 Category Film Exclusions
+
+We now make a list of all the films every customer has watched along with the ```film_id``` so it helps us in recommending unwatched films to customers. This can be used by performing an ```ANTI JOIN``` later with the ```film_counts``` table. 
+
+```sql
+DROP TABLE IF EXISTS category_film_exclusion;
+CREATE TEMP TABLE category_film_exclusion AS (
+SELECT DISTINCT
+  customer_id,
+  film_id,
+  title,
+  category_name
+FROM complete_joint_dataset
+);
+
+SELECT *
+FROM category_film_exclusion
+LIMIT 5;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | film_id | title                  | category_name |
+|-------------|---------|------------------------|---------------|
+| 194         | 264     | DWARFS ALTER           | Games         |
+| 293         | 902     | TRADING PINOCCHIO      | Sports        |
+| 64          | 366     | GOLDFINGER SENSIBILITY | Drama         |
+| 329         | 886     | THEORY MERMAID         | Animation     |
+| 172         | 154     | CLASH FREDDY           | Animation     |
+
+</details>
+
+### 5.2.3 Final Category Recommendations
+
+Finally, we find out the 3 films that we can recommend to each customer based on their top two categories. Here, we use a ```LEFT JOIN``` with the ```film_counts``` table and rank films of each category depending on the ```rental_count``` of that film across all the customers and later we use an ```ANTI JOIN``` with the ```category_film_exclusion``` to exclude film that have been already watched from the recommendation list.
+
+```sql
+DROP TABLE IF EXISTS category_recommendations;
+CREATE TEMP TABLE category_recommendations AS (
+WITH ranked_films_cte AS (
+SELECT
+  top_categories.customer_id,
+  top_categories.category_name,
+  top_categories.category_rank,
+  film_counts.film_id,
+  film_counts.title,
+  film_counts.rental_count,
+  DENSE_RANK() OVER (
+    PARTITION BY 
+      top_categories.customer_id,
+      top_categories.category_rank
+    ORDER BY
+      film_counts.rental_count DESC,
+      film_counts.title
+  ) AS reco_rank
+FROM top_categories
+LEFT JOIN film_counts
+  ON top_categories.category_name = film_counts.category_name
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM category_film_exclusion
+  WHERE 
+    category_film_exclusion.customer_id = top_categories.customer_id AND
+    category_film_exclusion.film_id = film_counts.film_id
+)
+)
+
+SELECT *
+FROM ranked_films_cte
+WHERE reco_rank <= 3
+);
+
+-- Display sample output recommendations for customer_id = 1
+SELECT *
+FROM category_recommendations
+WHERE customer_id = 1;
+```
+
+<details>
+<summary>Click to view output.</summary>
+<br>
+
+| customer_id | category_name | category_rank | film_id | title               | rental_count | reco_rank |
+|-------------|---------------|---------------|---------|---------------------|--------------|-----------|
+| 1           | Classics      | 1             | 891     | TIMBERLAND SKY      | 31           | 1         |
+| 1           | Classics      | 1             | 358     | GILMORE BOILED      | 28           | 2         |
+| 1           | Classics      | 1             | 951     | VOYAGE LEGALLY      | 28           | 3         |
+| 1           | Comedy        | 2             | 1000    | ZORRO ARK           | 31           | 1         |
+| 1           | Comedy        | 2             | 127     | CAT CONEHEADS       | 30           | 2         |
+| 1           | Comedy        | 2             | 638     | OPERATION OPERATION | 27           | 3         |
+
+</details>
