@@ -897,3 +897,143 @@ WHERE customer_id = 3;
 | 3           | JAYNE      | NOLTE     | 4            | INVASION CYCLONE     | 468     | 150      | 3         |
 
 </details>
+
+## 5.6 Final Output Table
+
+Finally, lets create the output table that the marketing business table can use directly to fullfil the business requirements of the email marketing template.
+
+```sql
+DROP TABLE IF EXISTS final_data_asset;
+CREATE TEMP TABLE final_data_asset AS (
+WITH first_category AS (
+SELECT 
+  customer_id,
+  category_name,
+  CONCAT(
+    'You''ve watched ', rental_count, ' ', category_name, 'films, that''s ', 
+    average_comparison, ' more than the DVD Rental Co average and puts you in the top ', 
+    percentile, '% of ', category_name, ' gurus!'
+  ) AS insights
+FROM first_category_insights
+),
+
+second_category AS (
+SELECT
+  customer_id,
+  category_name,
+  CONCAT(
+    'You''ve watched ', rental_count, ' ', category_name, 'films, making up ', 
+    total_percentage, '% of your entire viewing history!'
+  ) AS insights
+FROM second_category_insights
+),
+
+top_actor AS (
+SELECT
+  customer_id,
+  CONCAT(INITCAP(first_name), ' ', INITCAP(last_name)) AS actor_name,
+  CONCAT(
+    'You''ve watched ', rental_count, ' films featuring ',
+    INITCAP(first_name), ' ', INITCAP(last_name), '! Here are some other films ', 
+    INITCAP(first_name), ' stars in that might interest you!'
+  ) AS insights
+FROM top_actor_counts
+),
+
+adjusted_title_case_category_recommendations AS (
+SELECT
+  customer_id,
+  INITCAP(title) AS title,
+  category_rank,
+  reco_rank
+FROM category_recommendations
+),
+
+wide_category_recommendations AS (
+SELECT
+  customer_id,
+  MAX(CASE WHEN category_rank = 1 AND reco_rank = 1 
+    THEN title END) AS cat_1_reco_1,
+  MAX(CASE WHEN category_rank = 1 AND reco_rank = 2 
+    THEN title END) AS cat_1_reco_2,
+  MAX(CASE WHEN category_rank = 1 AND reco_rank = 3 
+    THEN title END) AS cat_1_reco_3,
+  MAX(CASE WHEN category_rank = 2 AND reco_rank = 1 
+    THEN title END) AS cat_2_reco_1,
+  MAX(CASE WHEN category_rank = 2 AND reco_rank = 2 
+    THEN title END) AS cat_2_reco_2,
+  MAX(CASE WHEN category_rank = 2 AND reco_rank = 3 
+    THEN title END) AS cat_2_reco_3
+FROM adjusted_title_case_category_recommendations
+GROUP BY customer_id
+),
+
+adjusted_title_case_actor_recommendations AS (
+SELECT
+  customer_id,
+  INITCAP(title) AS title,
+  reco_rank
+FROM actor_recommendations
+),
+
+wide_actor_recommendations AS (
+SELECT
+  customer_id,
+  MAX(CASE WHEN reco_rank = 1 THEN title END) AS actor_reco_1,
+  MAX(CASE WHEN reco_rank = 2 THEN title END) AS actor_reco_2,
+  MAX(CASE WHEN reco_rank = 3  THEN title END) AS actor_reco_3
+FROM adjusted_title_case_actor_recommendations
+GROUP BY customer_id
+),
+
+final_output AS (
+SELECT
+  t1.customer_id,
+  t1.category_name AS cat_1,
+  t1.insights AS cat_1_insights,
+  t4.cat_1_reco_1,
+  t4.cat_1_reco_2,
+  t4.cat_1_reco_3,
+  t2.category_name AS cat_2,
+  t2.insights AS cat_2_insights,
+  t4.cat_2_reco_1,
+  t4.cat_2_reco_2,
+  t4.cat_2_reco_3,
+  t3.actor_name AS actor,
+  t3.insights AS actor_insights,
+  t5.actor_reco_1,
+  t5.actor_reco_2,
+  t5.actor_reco_3
+FROM first_category AS t1
+INNER JOIN second_category AS t2
+  ON t1.customer_id = t2.customer_id
+INNER JOIN top_actor AS t3
+  ON t1.customer_id = t3.customer_id
+INNER JOIN wide_category_recommendations AS t4
+  ON t1.customer_id = t4.customer_id
+INNER JOIN wide_actor_recommendations AS t5
+  ON t1.customer_id = t5.customer_id
+)
+
+SELECT * FROM final_output
+);
+```
+
+Let's check a few sample rows of our final output table.
+
+```sql
+SELECT *
+FROM final_data_asset
+LIMIT 5;
+```
+
+*Output:*
+
+| customer_id | cat_1    | cat_1_insights                                                                                                             | cat_1_reco_1        | cat_1_reco_2      | cat_1_reco_3      | cat_2     | cat_2_insights                                                                 | cat_2_reco_1      | cat_2_reco_2     | cat_2_reco_3        | actor          | actor_insights                                                                                                    | actor_reco_1         | actor_reco_2          | actor_reco_3           |
+|-------------|----------|----------------------------------------------------------------------------------------------------------------------------|---------------------|-------------------|-------------------|-----------|--------------------------------------------------------------------------------|-------------------|------------------|---------------------|----------------|-------------------------------------------------------------------------------------------------------------------|----------------------|-----------------------|------------------------|
+| 1           | Classics | You've watched 6 Classicsfilms, that's 4 more than the DVD Rental Co average and puts you in the top 1% of Classics gurus! | Timberland Sky      | Gilmore Boiled    | Voyage Legally    | Comedy    | You've watched 5 Comedyfilms, making up 16% of your entire viewing history!    | Zorro Ark         | Cat Coneheads    | Operation Operation | Val Bolger     | You've watched 6 films featuring Val Bolger! Here are some other films Val stars in that might interest you!      | Primary Glass        | Alaska Phantom        | Metropolis Coma        |
+| 2           | Sports   | You've watched 5 Sportsfilms, that's 3 more than the DVD Rental Co average and puts you in the top 2% of Sports gurus!     | Gleaming Jawbreaker | Talented Homicide | Roses Treasure    | Classics  | You've watched 4 Classicsfilms, making up 15% of your entire viewing history!  | Frost Head        | Gilmore Boiled   | Voyage Legally      | Gina Degeneres | You've watched 5 films featuring Gina Degeneres! Here are some other films Gina stars in that might interest you! | Goodfellas Salute    | Wife Turn             | Dogma Family           |
+| 3           | Action   | You've watched 4 Actionfilms, that's 2 more than the DVD Rental Co average and puts you in the top 4% of Action gurus!     | Rugrats Shakespeare | Suspects Quills   | Handicap Boondock | Sci-Fi    | You've watched 3 Sci-Fifilms, making up 12% of your entire viewing history!    | Goodfellas Salute | English Bulworth | Graffiti Love       | Jayne Nolte    | You've watched 4 films featuring Jayne Nolte! Here are some other films Jayne stars in that might interest you!   | Sweethearts Suspects | Dancing Fever         | Invasion Cyclone       |
+| 4           | Horror   | You've watched 3 Horrorfilms, that's 2 more than the DVD Rental Co average and puts you in the top 8% of Horror gurus!     | Pulp Beverly        | Family Sweet      | Swarm Gold        | Drama     | You've watched 2 Dramafilms, making up 9% of your entire viewing history!      | Hobbit Alien      | Harry Idaho      | Witches Panic       | Walter Torn    | You've watched 4 films featuring Walter Torn! Here are some other films Walter stars in that might interest you!  | Curtain Videotape    | Lies Treatment        | Nightmare Chill        |
+| 5           | Classics | You've watched 7 Classicsfilms, that's 5 more than the DVD Rental Co average and puts you in the top 1% of Classics gurus! | Timberland Sky      | Frost Head        | Gilmore Boiled    | Animation | You've watched 6 Animationfilms, making up 16% of your entire viewing history! | Juggler Hardly    | Dogma Family     | Storm Happiness     | Karl Berry     | You've watched 4 films featuring Karl Berry! Here are some other films Karl stars in that might interest you!     | Virginian Pluto      | Stagecoach Armageddon | Telemark Heartbreakers |
+
