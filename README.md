@@ -127,7 +127,7 @@ First, we start with the data exploration. There are 7 tables in total viz ```re
 
 ### Click to view 👇:
 
-[![forthebadge](images/badges/solution-data-exploration.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/01-Data_Exploration)
+[![forthebadge](images/badges/solution-data-exploration.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/01-Data-Exploration)
 
 ## 📌 Data Analysis <a name = "data-analysis"></a>
 
@@ -173,7 +173,7 @@ Now that we have our base table after joining all the tables, we start solving f
 
 Lastly, we started implemnting the final solutions for each of the requirements. Let's take a quick look at the outputs of our tables.
 
-#### Requirement #1
+### 👉 Requirement #1
 
 <hr>
 
@@ -186,7 +186,7 @@ The top two categories for each customer are shown as below: (We'll only take a 
 | 2           | Sports        | 5            | 1             |
 | 2           | Classics      | 4            | 2             |
 
-#### Requirement #2
+### 👉 Requirement #2
 
 <hr>
 
@@ -201,7 +201,7 @@ The film recommendations for ```customer_id = 1``` are as follows:
 | 1           | Comedy        | 2             | 127     | CAT CONEHEADS       | 30           | 2         |
 | 1           | Comedy        | 2             | 638     | OPERATION OPERATION | 27           | 3         |
 
-#### Requirement #3&4
+### 👉 Requirement #3&4
 
 <hr>
 
@@ -225,7 +225,9 @@ And, for the second top category, the output table is:
 | 273         | New           | 4            | 11               |
 | 550         | Drama         | 4            | 13               |
 
-#### Requirement #5
+### 👉 Requirement #5
+
+<hr>
 
 The favorite actor for each customer can be found in the temp table ```top_actor_counts```:
 
