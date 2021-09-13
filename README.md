@@ -53,12 +53,61 @@ The following email template has been shared to us by the marketing team at DVD 
     <img src="images\dvd-rental-co.png" alt="email-template" width="500px">
 </p>
 
-### 1. Requirement #1️⃣ <a name = "requirement_1"></a>
+### Requirement #1️⃣ <a name = "requirement_1"></a>
+
+<hr>
 
 For each customer, we need to find the top 2 categories based on their past rental history.
 
 <br>
 
 <p align="center">
-    <img src="images\requirement_1.png" alt="email-template" width="400px">
+    <img src="images\requirement_1.png" alt="email-template" width="500px">
+</p>
+
+### Requirement #2️⃣ <a name = "requirement_2"></a>
+
+<hr>
+
+Next, for each of the top 2 categories, we need to recommend 3 popular films which the customer hasn't watched. Even if there is atleast 1 film that can be recommended, it's fine with the marketing team.
+
+<br>
+
+<p align="center">
+    <img src="images\requirement_2.png" alt="email-template" width="500px">
+</p>
+
+### Requirement #3️⃣ & #4️⃣ <a name = "requirement_3&4"></a>
+
+<hr>
+
+Lastly, for the top 2 categories, we need to provide some individual customer insights. 
+
+For the 1st category, the marketing requires the following insights (requirement 3):
+
+1. How many total films have they watched in their top category?
+2. How many more films has the customer watched compared to the average DVD Rental Co customer?
+3. How does the customer rank in terms of the top X% compared to all other customers in this film category?
+
+For the second ranking category (requirement 4):
+
+1. How many total films has the customer watched in this category?
+2. What proportion of each customer’s total films watched does this count make?
+
+<br>
+
+<p align="center">
+    <img src="images\requirement_3&4.png" alt="email-template" width="500px">
+</p>
+
+### Requirement #5️⃣ <a name = "requirement_5"></a>
+
+<hr>
+
+Lastly, we need to identify the favourite actor of the customer along with the total films they have watched in which their favourite actor has starred. Also, we need to recommend upto 3 films that the customer hasn't watched so far and make sure to exclude the films that we have already recommended in the above sections.
+
+<br>
+
+<p align="center">
+    <img src="images\requirement_5.png" alt="email-template" width="500px">
 </p>
