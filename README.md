@@ -36,7 +36,7 @@
 - [🧲 Join Implementation](#join-implementation)
 - [💥 Problem Solving](#problem-solving)
 - [✨ Final Solution](#final-solution)
-- [🙏 Acknowledgments](#acknowledgement)
+- [🚀 Business Questions](business-questions)
 - [🎨 Contributing](#contributing)
 - [🌟 Support](#support)
 
@@ -251,3 +251,40 @@ And, the recommendations based on their favorite actor for ```customer_id = 1```
 
 [![forthebadge](images/badges/solution-final-solution.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/05-Final-Solution)
 
+## 🚀 Business Questions <a name = "business-questions></a>
+
+The following questions are part of the final case study quiz - these are example questions the Marketing team might be interested in!
+
+1. Which film title was the most recommended for all customers?
+2. How many customers were included in the email campaign?
+3. Out of all the possible films - what percentage coverage do we have in our recommendations?
+4. What is the most popular top category?
+5. What is the 4th most popular top category?
+6. What is the average percentile ranking for each customer in their top category rounded to the nearest 2 decimal places?
+7. What is the median of the second category percentage of entire viewing history?
+8. What is the 80th percentile of films watched featuring each customer’s favourite actor?
+9. What was the average number of films watched by each customer?
+10. What is the top combination of top 2 categories and how many customers if the order is relevant (e.g. Horror and Drama is a different combination to Drama and Horror)
+11. Which actor was the most popular for all customers?
+12. How many films on average had customers already seen that feature their favourite actor rounded to closest integer?
+13. What is the most common top categories combination if order was irrelevant and how many customers have this combination? (e.g. Horror and Drama is a the same as Drama and Horror)
+
+### Click to view 👇:
+
+[![forthebadge](images/badges/solution-business-questions.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/06-Solving-Business-Questions)
+
+## 🎨 Contributing <a name = "contributing"></a>
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 🌟 Support
+
+Hit the ⭐ if you like this project. 😄
+
+# Thank you!
