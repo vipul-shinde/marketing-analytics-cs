@@ -19,7 +19,7 @@
 
 ---
 
-<p align="center"> This is a tutorial guided marketing analytics case study from the <a href="https://www.datawithdanny.com/">Serious SQL</a> course by Danny Ma. The marketing team have shared with us a draft of the email they wish to send to their customers.
+<p align="center"> This is a marketing analytics case study from the <a href="https://www.datawithdanny.com/">Serious SQL</a> course by Danny Ma. The marketing team have shared with us a draft of the email they wish to send to their customers.
     <br> 
 </p>
 
