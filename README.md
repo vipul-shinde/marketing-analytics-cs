@@ -26,6 +26,7 @@
 ## 📝 Table of Contents
 - [About](#about)
 - [Getting Started](#getting_started)
+    - [Requirement #1](#requirement_1)
 - [Deployment](#deployment)
 - [Usage](#usage)
 - [Built Using](#built_using)
@@ -49,5 +50,15 @@ The following email template has been shared to us by the marketing team at DVD 
 <br>
 
 <p align="center">
-    <img src="images\dvd-rental-co.png" alt="email-template" width="600px">
+    <img src="images\dvd-rental-co.png" alt="email-template" width="500px">
+</p>
+
+### 1. Requirement #1️⃣ <a name = "requirement_1"></a>
+
+For each customer, we need to find the top 2 categories based on their past rental history.
+
+<br>
+
+<p align="center">
+    <img src="images\requirement_1.png" alt="email-template" width="400px">
 </p>
