@@ -4,7 +4,7 @@
 
 The following questions are part of the final case study quiz - these are example questions the Marketing team might be interested in!
 
-### 6.1 Which film title was the most recommended for all customers?
+### 1. Which film title was the most recommended for all customers?
 
 ```sql
 WITH all_recommended_films AS (
@@ -38,9 +38,11 @@ LIMIT 5;
 | HANDICAP BOONDOCK   | 109        |
 | GLEAMING JAWBREAKER | 106        |
 
+So, ```DOGMA FAMILY``` was the most recommended film among all the customers.
+
 <hr>
 
-### 6.2 How many customers were included in the email campaign?
+### 2. How many customers were included in the email campaign?
 
 ```sql
 SELECT
@@ -54,9 +56,11 @@ FROM final_data_asset;
 |-----------------|
 | 599             |
 
+In total, ```599``` customers were included in the email marketing campaign.
+
 <hr>
 
-### 6.3 Out of all the possible films - what percentage coverage do we have in our recommendations?
+### 3. Out of all the possible films - what percentage coverage do we have in our recommendations?
 
 ```sql
 WITH all_recommended_films AS (
@@ -93,9 +97,11 @@ CROSS JOIN all_films AS t2;
 |---------------------|
 | 25                  |
 
+Out of all the films available in the dataset, a ```25%``` of them were in the recommendation list.
+
 <hr>
 
-### 6.4 What is the most popular top category?
+### 4. What is the most popular top category?
 
 ```sql
 SELECT
@@ -127,9 +133,11 @@ ORDER BY total_count DESC;
 | Comedy        | 22          |
 | Children      | 21          |
 
+```Sports``` is the most popular top category among all the customers.
+
 <hr>
 
-### 6.5 What is the 4th most popular top category?
+### 5. What is the 4th most popular top category?
 
 ```sql
 WITH ranked_cte AS (
@@ -152,9 +160,11 @@ WHERE cat_rank=4;
 |---------------|-------------|----------|
 | Animation     | 50          | 4        |
 
+The 4th most popular top category among all the customers is ```Animation```.
+
 <hr>
 
-### 6.6 What is the average percentile ranking for each customer in their top category rounded to the nearest 2 decimal places?
+### 6. What is the average percentile ranking for each customer in their top category rounded to the nearest 2 decimal places?
 
 ```sql
 SELECT
@@ -170,36 +180,11 @@ FROM first_category_insights;
 |--------------------|
 | 5.10               |
 
-<hr>
-
-### 6.7 What is the cumulative distribution of the top 5 percentile values for the top category from the first_category_insights table rounded to the nearest round percentage?
-
-```sql
-SELECT
-  ROUND(percentile) AS percentile,
-  COUNT(*) AS frequency,
-  ROUND(100 * CUME_DIST() OVER (
-          ORDER BY ROUND(percentile))
-    ) AS cde
-FROM first_category_insights
-GROUP BY percentile
-ORDER BY percentile
-LIMIT 5;
-```
-
-*Output:*
-
-| percentile | frequency | cde |
-|------------|-----------|-----|
-| 1          | 159       | 4   |
-| 2          | 126       | 9   |
-| 3          | 41        | 13  |
-| 4          | 50        | 17  |
-| 5          | 14        | 22  |
+The average percentile ranking for each customer in their top category is ```5.10```.
 
 <hr>
 
-### 6.8 What is the median of the second category percentage of entire viewing history?
+### 7. What is the median of the second category percentage of entire viewing history?
 
 ```sql
 SELECT
@@ -213,9 +198,11 @@ FROM second_category_insights;
 |--------|
 | 13     |
 
+The median of the second category percentage of entire viewing history is ```13```.
+
 <hr>
 
-### 6.9 What is the 80th percentile of films watched featuring each customer’s favorite actor?
+### 8. What is the 80th percentile of films watched featuring each customer’s favorite actor?
 
 ```sql
 SELECT
@@ -231,7 +218,7 @@ FROM top_actor_counts;
 
 <hr>
 
-### 6.10 What was the average number of films watched by each customer?
+### 9. What was the average number of films watched by each customer?
 
 ```sql
 SELECT
@@ -245,9 +232,11 @@ FROM total_counts;
 |-----------------------|
 | 27                    |
 
+The average number of films watched by each customer is around ```27```.
+
 <hr>
 
-### 6.11 What is the top combination of top 2 categories and how many customers if the order is relevant (e.g. Horror and Drama is a different combination to Drama and Horror)
+### 10. What is the top combination of top 2 categories and how many customers if the order is relevant (e.g. Horror and Drama is a different combination to Drama and Horror)
 
 ```sql
 SELECT
@@ -272,9 +261,11 @@ LIMIT 5;
 | Sci-Fi     | Family        | 8          |
 | Animation  | Family        | 7          |
 
+The top combination of categories is ```Sports``` & ```Animation``` and ```11``` customers have it has their top two categories when the order of the categories matters.
+
 <hr>
 
-### 6.12 Which actor was the most popular for all customers?
+### 11. Which actor was the most popular for all customers?
 
 ```sql
 SELECT
@@ -292,9 +283,11 @@ LIMIT 1;
 |-------------|------------|
 | Walter Torn | 13         |
 
+The most popular actor among all the customer is ```Walter Torn```.
+
 <hr>
 
-### 6.13 How many films on average had customers already seen that feature their favorite actor rounded to closest integer?
+### 12. How many films on average had customers already seen that feature their favorite actor rounded to closest integer?
 
 ```sql
 SELECT 
@@ -308,9 +301,11 @@ FROM top_actor_counts;
 |-----------|
 | 4         |
 
+On average, customers had already watched ```4``` films that featured their favorite actor.
+
 <hr>
 
-### 6.14 What is the most common top categories combination if order was irrelevant and how many customers have this combination? (e.g. Horror and Drama is a the same as Drama and Horror)
+### 13. What is the most common top categories combination if order was irrelevant and how many customers have this combination? (e.g. Horror and Drama is a the same as Drama and Horror)
 
 ```sql
 SELECT
@@ -334,5 +329,7 @@ LIMIT 5;
 | Family        | Sci-Fi      | 12         |
 | Animation     | Family      | 12         |
 | Documentary   | Drama       | 12         |
+
+The top combination of categories is ```Animation``` & ```Sports``` and ```14``` customers have it has their top two categories when the order of the categories don't matter.
 
 # Thank you!
