@@ -38,6 +38,8 @@ LIMIT 5;
 | HANDICAP BOONDOCK   | 109        |
 | GLEAMING JAWBREAKER | 106        |
 
+<hr>
+
 ### 6.2 How many customers were included in the email campaign?
 
 ```sql
@@ -51,6 +53,8 @@ FROM final_data_asset;
 | total_customers |
 |-----------------|
 | 599             |
+
+<hr>
 
 ### 6.3 Out of all the possible films - what percentage coverage do we have in our recommendations?
 
@@ -89,6 +93,8 @@ CROSS JOIN all_films AS t2;
 |---------------------|
 | 25                  |
 
+<hr>
+
 ### 6.4 What is the most popular top category?
 
 ```sql
@@ -121,6 +127,8 @@ ORDER BY total_count DESC;
 | Comedy        | 22          |
 | Children      | 21          |
 
+<hr>
+
 ### 6.5 What is the 4th most popular top category?
 
 ```sql
@@ -144,6 +152,8 @@ WHERE cat_rank=4;
 |---------------|-------------|----------|
 | Animation     | 50          | 4        |
 
+<hr>
+
 ### 6.6 What is the average percentile ranking for each customer in their top category rounded to the nearest 2 decimal places?
 
 ```sql
@@ -159,6 +169,8 @@ FROM first_category_insights;
 | average_percentile |
 |--------------------|
 | 5.10               |
+
+<hr>
 
 ### 6.7 What is the cumulative distribution of the top 5 percentile values for the top category from the first_category_insights table rounded to the nearest round percentage?
 
@@ -185,6 +197,8 @@ LIMIT 5;
 | 4          | 50        | 17  |
 | 5          | 14        | 22  |
 
+<hr>
+
 ### 6.8 What is the median of the second category percentage of entire viewing history?
 
 ```sql
@@ -198,6 +212,8 @@ FROM second_category_insights;
 | median |
 |--------|
 | 13     |
+
+<hr>
 
 ### 6.9 What is the 80th percentile of films watched featuring each customer’s favorite actor?
 
@@ -213,6 +229,8 @@ FROM top_actor_counts;
 |------------------------|
 | 5                      |
 
+<hr>
+
 ### 6.10 What was the average number of films watched by each customer?
 
 ```sql
@@ -226,6 +244,8 @@ FROM total_counts;
 | average_films_watched |
 |-----------------------|
 | 27                    |
+
+<hr>
 
 ### 6.11 What is the top combination of top 2 categories and how many customers if the order is relevant (e.g. Horror and Drama is a different combination to Drama and Horror)
 
@@ -252,6 +272,8 @@ LIMIT 5;
 | Sci-Fi     | Family        | 8          |
 | Animation  | Family        | 7          |
 
+<hr>
+
 ### 6.12 Which actor was the most popular for all customers?
 
 ```sql
@@ -269,6 +291,8 @@ LIMIT 1;
 | actor       | freq_count |
 |-------------|------------|
 | Walter Torn | 13         |
+
+<hr>
 
 ### 6.13 How many films on average had customers already seen that feature their favorite actor rounded to closest integer?
 
