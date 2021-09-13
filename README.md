@@ -1,5 +1,5 @@
 [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)]()
-[![forthebadge](images/badges/made-with-postgresql.svg)]()
+[![forthebadge](images/badges/uses-postgresql.svg)]()
 [![forthebadge](https://forthebadge.com/images/badges/made-with-markdown.svg)]()
 
 <p align="center">
@@ -41,3 +41,13 @@ Personalized customer emails based off marketing analytics is a winning formula 
 We have been asked to support the customer analytics team at DVD Rental Co who have been tasked with generating the necessary data points required to populate specific parts of this first-ever customer email campaign.
 
 We will be using SQL to solve the problems faced by the analytics team and fullfill the requirements for the email marketing template.
+
+## 🎯 Getting Started <a name = "getting_started"></a>
+
+The following email template has been shared to us by the marketing team at DVD Rental Co. They need our help in order to start a personalized marketing campaign. 
+
+<br>
+
+<p align="center">
+    <img src="images\dvd-rental-co.png" alt="email-template" width="400px">
+</p>
