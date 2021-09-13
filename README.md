@@ -19,7 +19,7 @@
 
 ---
 
-<p align="center"> This is a tutorial guided marketing analytics case study from the <a href="www.datawithdanny.com">Serious SQL</a> course by Danny Ma. The marketing team have shared with us a draft of the email they wish to send to their customers.
+<p align="center"> This is a tutorial guided marketing analytics case study from the <a href="https://www.datawithdanny.com/">Serious SQL</a> course by Danny Ma. The marketing team have shared with us a draft of the email they wish to send to their customers.
     <br> 
 </p>
 
@@ -58,7 +58,7 @@ The following email template has been shared to us by the marketing team at DVD 
     <img src="images\dvd-rental-co.png" alt="email-template" width="500px">
 </p>
 
-<p align="center"> <u>Source: <a href="www.datawithdanny.com">Serious SQL</a></u>
+<p align="center"> <u>Source: <a href="https://www.datawithdanny.com/">Serious SQL</a></u>
     <br> 
 </p>
 
@@ -74,7 +74,7 @@ For each customer, we need to find the top 2 categories based on their past rent
     <img src="images\requirement_1.png" alt="email-template" width="500px">
 </p>
 
-<p align="center"> <u>Source: <a href="www.datawithdanny.com">Serious SQL</a></u>
+<p align="center"> <u>Source: <a href="https://www.datawithdanny.com/">Serious SQL</a></u>
     <br> 
 </p>
 
@@ -90,7 +90,7 @@ Next, for each of the top 2 categories, we need to recommend 3 popular films whi
     <img src="images\requirement_2.png" alt="email-template" width="500px">
 </p>
 
-<p align="center"> <u>Source: <a href="www.datawithdanny.com">Serious SQL</a></u>
+<p align="center"> <u>Source: <a href="https://www.datawithdanny.com/">Serious SQL</a></u>
     <br> 
 </p>
 
@@ -117,7 +117,7 @@ Lastly, for the top 2 categories, we need to provide some individual customer in
     <img src="images\requirement_3&4.png" alt="email-template" width="500px">
 </p>
 
-<p align="center"> <u>Source: <a href="www.datawithdanny.com">Serious SQL</a></u>
+<p align="center"> <u>Source: <a href="https://www.datawithdanny.com/">Serious SQL</a></u>
     <br> 
 </p>
 
@@ -133,7 +133,7 @@ Lastly, we need to identify the favourite actor of the customer along with the t
     <img src="images\requirement_5.png" alt="email-template" width="500px">
 </p>
 
-<p align="center"> <u>Source: <a href="www.datawithdanny.com">Serious SQL</a></u>
+<p align="center"> <u>Source: <a href="https://www.datawithdanny.com/">Serious SQL</a></u>
     <br> 
 </p>
 
