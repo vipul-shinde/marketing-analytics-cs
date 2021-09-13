@@ -121,8 +121,8 @@ Lastly, we need to identify the favourite actor of the customer along with the t
 First, we start with the data exploration. There are 7 tables in total viz ```rental```, ```inventory```, ```film```, ```film_category```, ```category```, ```film_actor``` and ```actor```. The Entity Relationship diagram can be seen as below.
 
 <p align="center">
-    <img src="images\erd.png" alt="erd" width="500px">
+    <img src="images\erd.png" alt="erd">
 </p>
 
-Click to view 👇
+### Click to view 👉
 [![forthebadge](images/badges/solution-data-exploration.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/01-Data_Exploration)
