@@ -25,19 +25,20 @@
 
 ## 📝 Table of Contents
 
-- [About](#about)
-- [Getting Started](#getting_started)
+- [🧐 About](#about)
+- [🎯 Getting Started](#getting_started)
   - [Requirement #1](#requirement_1)
   - [Requirement #2](#requirement_2)
   - [Requirement #3&4](#requirement_3&4)
   - [Requirement #5](#requirement_5)
-- [Data Exploration](#data-exploration)
-- [Plan of Attack](#plan-of-attack)
-- [Built Using](#built_using)
-- [TODO](../TODO.md)
-- [Contributing](../CONTRIBUTING.md)
-- [Authors](#authors)
-- [Acknowledgments](#acknowledgement)
+- [📊 Data Exploration](#data-exploration)
+- [📌 Data Analysis](#data-analysis)
+- [🧲 Join Implementation](#join-implementation)
+- [💥 Problem Solving](#problem-solving)
+- [✨ Final Solution](#final-solution)
+- [🙏 Acknowledgments](#acknowledgement)
+- [🎨 Contributing](#contributing)
+- [🌟 Support](#support)
 
 ## 🧐 About <a name = "about"></a>
 
@@ -170,4 +171,81 @@ Now that we have our base table after joining all the tables, we start solving f
 
 ## ✨ Final Solution <a name = "final-solution"></a>
 
-Lastly, 
+Lastly, we started implemnting the final solutions for each of the requirements. Let's take a quick look at the outputs of our tables.
+
+#### Requirement #1
+
+<hr>
+
+The top two categories for each customer are shown as below: (We'll only take a look at the output for customer_id =1,2)
+
+| customer_id | category_name | rental_count | category_rank |
+|-------------|---------------|--------------|---------------|
+| 1           | Classics      | 6            | 1             |
+| 1           | Comedy        | 5            | 2             |
+| 2           | Sports        | 5            | 1             |
+| 2           | Classics      | 4            | 2             |
+
+#### Requirement #2
+
+<hr>
+
+The film recommendations for ```customer_id = 1``` are as follows:
+
+| customer_id | category_name | category_rank | film_id | title               | rental_count | reco_rank |
+|-------------|---------------|---------------|---------|---------------------|--------------|-----------|
+| 1           | Classics      | 1             | 891     | TIMBERLAND SKY      | 31           | 1         |
+| 1           | Classics      | 1             | 358     | GILMORE BOILED      | 28           | 2         |
+| 1           | Classics      | 1             | 951     | VOYAGE LEGALLY      | 28           | 3         |
+| 1           | Comedy        | 2             | 1000    | ZORRO ARK           | 31           | 1         |
+| 1           | Comedy        | 2             | 127     | CAT CONEHEADS       | 30           | 2         |
+| 1           | Comedy        | 2             | 638     | OPERATION OPERATION | 27           | 3         |
+
+#### Requirement #3&4
+
+<hr>
+
+For the top first category, here is how the insights look like:
+
+| customer_id | category_name | rental_count | average_comparison | percentile |
+|-------------|---------------|--------------|--------------------|------------|
+| 323         | Action        | 7            | 5                  | 1          |
+| 506         | Action        | 7            | 5                  | 1          |
+| 151         | Action        | 6            | 4                  | 1          |
+| 410         | Action        | 6            | 4                  | 1          |
+| 126         | Action        | 6            | 4                  | 1          |
+
+And, for the second top category, the output table is:
+
+| customer_id | category_name | rental_count | total_percentage |
+|-------------|---------------|--------------|------------------|
+| 184         | Drama         | 3            | 13               |
+| 87          | Sci-Fi        | 3            | 10               |
+| 477         | Travel        | 3            | 14               |
+| 273         | New           | 4            | 11               |
+| 550         | Drama         | 4            | 13               |
+
+#### Requirement #5
+
+The favorite actor for each customer can be found in the temp table ```top_actor_counts```:
+
+| customer_id | actor_id | first_name | last_name | rental_count |
+|-------------|----------|------------|-----------|--------------|
+| 1           | 37       | VAL        | BOLGER    | 6            |
+| 2           | 107      | GINA       | DEGENERES | 5            |
+| 3           | 150      | JAYNE      | NOLTE     | 4            |
+| 4           | 102      | WALTER     | TORN      | 4            |
+| 5           | 12       | KARL       | BERRY     | 4            |
+
+And, the recommendations based on their favorite actor for ```customer_id = 1``` are:
+
+| customer_id | first_name | last_name | rental_count | title           | film_id | actor_id | reco_rank |
+|-------------|------------|-----------|--------------|-----------------|---------|----------|-----------|
+| 1           | VAL        | BOLGER    | 6            | PRIMARY GLASS   | 697     | 37       | 1         |
+| 1           | VAL        | BOLGER    | 6            | ALASKA PHANTOM  | 12      | 37       | 2         |
+| 1           | VAL        | BOLGER    | 6            | METROPOLIS COMA | 572     | 37       | 3         |
+
+### Click to view 👇:
+
+[![forthebadge](images/badges/solution-final-solution.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/05-Final-Solution)
+
