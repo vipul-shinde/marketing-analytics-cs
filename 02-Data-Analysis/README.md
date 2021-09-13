@@ -1,4 +1,4 @@
-# 2. Plan of Attack
+# 2. Data Analysis
 
 ## 2.1 Define the final state
 

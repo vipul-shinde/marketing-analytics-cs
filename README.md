@@ -6,7 +6,7 @@
     <img src="images\Marketing_Analytics.png" alt="marketing-analytics">
 </p>
 
-<h1 align="center">Marketing Analytics Case Study - Serious SQL</h1>
+<h1 align="center">Marketing Analytics Case Study - Serious SQL 🚀</h1>
 
 <div align="center">
 
@@ -32,7 +32,7 @@
   - [Requirement #3&4](#requirement_3&4)
   - [Requirement #5](#requirement_5)
 - [Data Exploration](#data-exploration)
-- [Usage](#usage)
+- [Plan of Attack](#plan-of-attack)
 - [Built Using](#built_using)
 - [TODO](../TODO.md)
 - [Contributing](../CONTRIBUTING.md)
@@ -124,6 +124,29 @@ First, we start with the data exploration. There are 7 tables in total viz ```re
     <img src="images\erd.png" alt="erd">
 </p>
 
-### 👇 Click to view
+### Click to view 👇:
 
 [![forthebadge](images/badges/solution-data-exploration.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/01-Data_Exploration)
+
+## 📌 Data Analysis <a name = "data-analysis"></a>
+
+After exploring the dataset, we start analysing the key columns and come up with a few hypotheses to understand the data in depth. After running the analysis, we come to a conclusion that for our example, it doesn't matter if we use a ```INNER JOIN``` or ```LEFT JOIN``` since all the values in our left table are present in the target table.
+
+### Click to view 👇:
+
+[![forthebadge](images/badges/solution-data-analysis.svg)]()
+
+## 🧲 Join Implementation <a name = "join-implementation"></a>
+
+Next, we start implementing the table joins which will then help us to start the problem solving. From the analysis section, we have come to conclusion to the following join table sequence.
+
+| Join Journey Part | Start               |  End                |  Foreign Key       |
+|-------------------|---------------------|---------------------|--------------------|
+| Part 1            | ```rental```        | ```inventory```     | ```inventory_id``` |
+| Part 2            | ```inventory```     | ```film```          | ```film_id```      |
+| Part 3            | ```film```          | ```film_category``` | ```film_id```      |
+| Part 4            | ```film_category``` | ```category```      | ```category_id```  |
+
+### Click to view 👇:
+
+[![forthebadge](images/badges/solution-join-implementation.svg)]()
