@@ -7,7 +7,7 @@
 </div>
 
 <p align="center">
-    <img src="images\Marketing_Analytics.png" width="500px" alt="marketing-analytics">
+    <img src="images\Marketing_Analytics.png" alt="marketing-analytics">
 </p>
 
 <h1 align="center">Marketing Analytics Case Study - Serious SQL</h1>
