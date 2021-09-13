@@ -309,6 +309,6 @@ Contributions are what make the open source community such an amazing place to l
 
 ## 🌟 Support
 
-Hit the ⭐ if you like this project. 😄
+Please hit the ⭐button if you like this project. 😄
 
 # Thank you!
