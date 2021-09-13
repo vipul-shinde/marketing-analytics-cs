@@ -134,7 +134,7 @@ After exploring the dataset, we start analysing the key columns and come up with
 
 ### Click to view 👇:
 
-[![forthebadge](images/badges/solution-data-analysis.svg)]()
+[![forthebadge](images/badges/solution-data-analysis.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/02-Data-Analysis)
 
 ## 🧲 Join Implementation <a name = "join-implementation"></a>
 
@@ -149,4 +149,25 @@ Next, we start implementing the table joins which will then help us to start the
 
 ### Click to view 👇:
 
-[![forthebadge](images/badges/solution-join-implementation.svg)]()
+[![forthebadge](images/badges/solution-join-implementation.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/03-Join-Implementation)
+
+## 💥 Problem Solving <a name = "problem-solving"></a>
+
+Now that we have our base table after joining all the tables, we start solving for requirements 1 - 4. The final output after this section is as below. As we can see, this is what we want to fill in few of our business requirements from the email template.
+
+| customer_id | category_rank | rental_count | average_comparison | percentile | category_percentage |
+|-------------|---------------|--------------|--------------------|------------|---------------------|
+| 1           | 1             | 6            | 4                  | 1          | 19                  |
+| 1           | 2             | 5            | 4                  | 1          | 16                  |
+| 2           | 1             | 5            | 3                  | 3          | 19                  |
+| 2           | 2             | 4            | 2                  | 2          | 15                  |
+| 3           | 1             | 4            | 2                  | 5          | 15                  |
+| 3           | 2             | 3            | 1                  | 15         | 12                  |
+
+### Click to view 👇:
+
+[![forthebadge](images/badges/solution-join-implementation.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/04-Problem-Solving)
+
+## ✨ Final Solution <a name = "final-solution"></a>
+
+Lastly, 
