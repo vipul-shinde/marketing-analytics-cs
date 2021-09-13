@@ -24,9 +24,13 @@
 </p>
 
 ## 📝 Table of Contents
+
 - [About](#about)
 - [Getting Started](#getting_started)
-    - [Requirement #1](#requirement_1)
+  - [Requirement #1](#requirement_1)
+  - [Requirement #2](#requirement_2)
+  - [Requirement #3&4](#requirement_3&4)
+  - [Requirement #5](#requirement_5)
 - [Deployment](#deployment)
 - [Usage](#usage)
 - [Built Using](#built_using)
@@ -53,7 +57,7 @@ The following email template has been shared to us by the marketing team at DVD 
     <img src="images\dvd-rental-co.png" alt="email-template" width="500px">
 </p>
 
-### Requirement #1️⃣ <a name = "requirement_1"></a>
+### Requirement 1️⃣ <a name = "requirement_1"></a>
 
 <hr>
 
@@ -65,7 +69,7 @@ For each customer, we need to find the top 2 categories based on their past rent
     <img src="images\requirement_1.png" alt="email-template" width="500px">
 </p>
 
-### Requirement #2️⃣ <a name = "requirement_2"></a>
+### Requirement 2️⃣ <a name = "requirement_2"></a>
 
 <hr>
 
@@ -77,19 +81,19 @@ Next, for each of the top 2 categories, we need to recommend 3 popular films whi
     <img src="images\requirement_2.png" alt="email-template" width="500px">
 </p>
 
-### Requirement #3️⃣ & #4️⃣ <a name = "requirement_3&4"></a>
+### Requirement 3️⃣ & 4️⃣ <a name = "requirement_3&4"></a>
 
 <hr>
 
 Lastly, for the top 2 categories, we need to provide some individual customer insights. 
 
-For the 1st category, the marketing requires the following insights (requirement 3):
+> For the 1st category, the marketing requires the following insights (requirement 3):
 
 1. How many total films have they watched in their top category?
 2. How many more films has the customer watched compared to the average DVD Rental Co customer?
 3. How does the customer rank in terms of the top X% compared to all other customers in this film category?
 
-For the second ranking category (requirement 4):
+> For the second ranking category (requirement 4):
 
 1. How many total films has the customer watched in this category?
 2. What proportion of each customer’s total films watched does this count make?
@@ -100,7 +104,7 @@ For the second ranking category (requirement 4):
     <img src="images\requirement_3&4.png" alt="email-template" width="500px">
 </p>
 
-### Requirement #5️⃣ <a name = "requirement_5"></a>
+### Requirement 5️⃣ <a name = "requirement_5"></a>
 
 <hr>
 
@@ -111,3 +115,4 @@ Lastly, we need to identify the favourite actor of the customer along with the t
 <p align="center">
     <img src="images\requirement_5.png" alt="email-template" width="500px">
 </p>
+
