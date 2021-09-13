@@ -13,7 +13,7 @@
   [![Status](https://img.shields.io/badge/status-active-success.svg)]()
   [![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)]() 
   [![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)]()
-  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg)]()
 
 </div>
 
@@ -31,7 +31,7 @@
   - [Requirement #2](#requirement_2)
   - [Requirement #3&4](#requirement_3&4)
   - [Requirement #5](#requirement_5)
-- [Deployment](#deployment)
+- [Data Exploration](#data-exploration)
 - [Usage](#usage)
 - [Built Using](#built_using)
 - [TODO](../TODO.md)
@@ -116,3 +116,13 @@ Lastly, we need to identify the favourite actor of the customer along with the t
     <img src="images\requirement_5.png" alt="email-template" width="500px">
 </p>
 
+## 📊 Data Exploration <a name = "data-exploration"></a>
+
+First, we start with the data exploration. There are 7 tables in total viz ```rental```, ```inventory```, ```film```, ```film_category```, ```category```, ```film_actor``` and ```actor```. The Entity Relationship diagram can be seen as below.
+
+<p align="center">
+    <img src="images\erd.png" alt="erd" width="500px">
+</p>
+
+Click to view 👇
+[![forthebadge](images/badges/solution-data-exploration.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/01-Data_Exploration)
