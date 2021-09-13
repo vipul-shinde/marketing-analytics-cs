@@ -3,7 +3,7 @@
 [![forthebadge](https://forthebadge.com/images/badges/made-with-markdown.svg)]()
 
 <p align="center">
-    <img src="images\Marketing_Analytics.png" width="00px" alt="marketing-analytics">
+    <img src="images\Marketing_Analytics.png" width="400px" alt="marketing-analytics">
 </p>
 
 <h2 align="center">Marketing Analytics Case Study - Serious SQL</h2>
