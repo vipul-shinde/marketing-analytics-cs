@@ -124,5 +124,6 @@ First, we start with the data exploration. There are 7 tables in total viz ```re
     <img src="images\erd.png" alt="erd">
 </p>
 
-### Click to view 👉
+### 👇 Click to view
+
 [![forthebadge](images/badges/solution-data-exploration.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/01-Data_Exploration)
