@@ -1,10 +1,6 @@
-<div align="center">
-
 [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)]()
 [![forthebadge](images/badges/made-with-postgresql.svg)]()
 [![forthebadge](https://forthebadge.com/images/badges/made-with-markdown.svg)]()
-
-</div>
 
 <p align="center">
     <img src="images\Marketing_Analytics.png" alt="marketing-analytics">
@@ -19,3 +15,5 @@
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 </div>
+
+---
