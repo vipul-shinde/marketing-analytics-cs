@@ -22,3 +22,22 @@
 <p align="center"> This is a tutorial guided marketing analytics case study from the <a href="www.datawithdanny.com">Serious SQL</a> course by Danny Ma. The marketing team have shared with us a draft of the email they wish to send to their customers.
     <br> 
 </p>
+
+## 📝 Table of Contents
+- [About](#about)
+- [Getting Started](#getting_started)
+- [Deployment](#deployment)
+- [Usage](#usage)
+- [Built Using](#built_using)
+- [TODO](../TODO.md)
+- [Contributing](../CONTRIBUTING.md)
+- [Authors](#authors)
+- [Acknowledgments](#acknowledgement)
+
+## 🧐 About <a name = "about"></a>
+
+Personalized customer emails based off marketing analytics is a winning formula for many digital companies, and this is exactly the         initiative that the leadership team at DVD Rental Co has decided to tackle!
+
+We have been asked to support the customer analytics team at DVD Rental Co who have been tasked with generating the necessary data points required to populate specific parts of this first-ever customer email campaign.
+
+We will be using SQL to solve the problems faced by the analytics team and fullfill the requirements for the email marketing template.
