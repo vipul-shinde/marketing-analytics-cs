@@ -284,6 +284,8 @@ FROM top_actor_counts;
 |-----------|
 | 4         |
 
+<hr>
+
 ### 6.14 What is the most common top categories combination if order was irrelevant and how many customers have this combination? (e.g. Horror and Drama is a the same as Drama and Horror)
 
 ```sql
