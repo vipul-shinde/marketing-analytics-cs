@@ -49,5 +49,5 @@ The following email template has been shared to us by the marketing team at DVD 
 <br>
 
 <p align="center">
-    <img src="images\dvd-rental-co.png" alt="email-template" width="400px">
+    <img src="images\dvd-rental-co.png" alt="email-template" width="600px">
 </p>
