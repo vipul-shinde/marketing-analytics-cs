@@ -275,7 +275,7 @@ And, the recommendations based on their favorite actor for ```customer_id = 1```
 
 [![forthebadge](images/badges/solution-final-solution.svg)](https://github.com/vipul-shinde/marketing-analytics-cs/tree/main/05-Final-Solution)
 
-## 🚀 Business Questions <a name = "business-questions></a>
+## 🚀 Business Questions <a name = "business-questions"></a>
 
 The following questions are part of the final case study quiz - these are example questions the Marketing team might be interested in!
 
