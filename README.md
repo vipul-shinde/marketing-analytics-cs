@@ -36,7 +36,7 @@
 - [🧲 Join Implementation](#join-implementation)
 - [💥 Problem Solving](#problem-solving)
 - [✨ Final Solution](#final-solution)
-- [🚀 Business Questions](business-questions)
+- [🚀 Business Questions](#business-questions)
 - [🎨 Contributing](#contributing)
 - [🌟 Support](#support)
 
