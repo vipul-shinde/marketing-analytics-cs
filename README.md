@@ -46,7 +46,7 @@ Personalized customer emails based off marketing analytics is a winning formula 
 
 We have been asked to support the customer analytics team at DVD Rental Co who have been tasked with generating the necessary data points required to populate specific parts of this first-ever customer email campaign.
 
-We will be using SQL to solve the problems faced by the analytics team and fullfill the requirements for the email marketing template.
+We will be using SQL to solve the problems faced by the analytics team and fullfil the requirements for the email marketing template.
 
 ## 🎯 Getting Started <a name = "getting_started"></a>
 
